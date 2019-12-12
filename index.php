@@ -1,5 +1,6 @@
 <?php
 
+
 namespace REDCap\FhirDataTool;
 
 require_once( __DIR__.'/app/bootstrap.php');
@@ -23,3 +24,8 @@ require_once( __DIR__.'/app/bootstrap.php');
     <fhir-data-tool msg="Hello..."></fhir-data-tool>
 </body>
 </html>
+
+<?php
+print_r($_SERVER['REQUEST_URI']);
+print_r($_SERVER);
+?>

@@ -15,8 +15,8 @@ class API {
         /* const query_params = qs.parse(location.search, { ignoreQueryPrefix: true })
         if(query_params.route) delete query_params.route
         const query = qs.stringify(query_params) */
-        this.base_url = app_path_webroot // /redcap_v999.0.0/
-        if(location.hostname==='localhost') this.base_url = '/api'
+        this.base_url = `${app_path_webroot}api` // /redcap_v999.0.0/
+        if(location.hostname==='localhost') this.base_url = 'https://localhost:8080/api'
     }
 
     getFhirResource(endpoint, mrn, params)
@@ -30,18 +30,20 @@ class API {
         const query_params = qs.parse(location.search, { ignoreQueryPrefix: true })
 
         const request_params = {
-            route,
-            endpoint,
-            mrn,
-            params,
+            // route,
+            endpoint: endpoint,
+            mrn: mrn,
+            params: params,
         }
         
         // extra params to be used in development mode
         if(location.hostname==='localhost') {
             request_params.userid = query_params.userid || 'delacqf'
-            request_params.pid = query_params.pid || 0 // add the project ID or the request will fail
-            url += '/resource'
+            // ATTENTION: if the pid is not a real project the call will fail
+            // request_params.pid = query_params.pid || 0 // add the project ID or the request will fail
         }
+        url += '/resource'
+
         return axios.get(url, {
             params: request_params,
             paramsSerializer: params => {
@@ -68,9 +70,10 @@ class API {
         // extra params to be used in development mode
         if(location.hostname==='localhost') {
             request_params.userid = query_params.userid || 'delacqf'
-            request_params.pid = query_params.pid || 0 // add the project ID or the request will fail
-            url += '/tokens'
+            // ATTENTION: if the pid is not a real project the call will fail
+            // request_params.pid = query_params.pid || 0 // add the project ID or the request will fail
         }
+        url += '/tokens'
         return axios.get(url, {
             params: request_params,
             paramsSerializer: params => {

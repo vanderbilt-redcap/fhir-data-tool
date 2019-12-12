@@ -5,12 +5,20 @@
 </template>
 
 <script>
+import Vue from 'vue'
+import store from '@/store'
+import { router } from './router'
 
+import API from '@/API/plugin'
+Vue.use(API)
+
+import App from './App.vue'
 
 
 export default {
   name: 'app',
-
+  store,
+  router,
 }
 </script>
 

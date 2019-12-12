@@ -1,3 +1,5 @@
+// const fs = require('fs');
+ 
 module.exports = {
     devServer: {
         overlay: {
@@ -6,11 +8,17 @@ module.exports = {
         },
         proxy: {
             '/api': {
-                target: 'https://redcap.test/fhir-data-tool',
+                target: 'https://redcap.test/fhir-data-tool/api',
                 ws: true,
                 changeOrigin: true,
                 pathRewrite: {'^/api': ''}
             },
-        }
+        },
+        /* https: {
+            // ca: fs.readFileSync('/Users/delacqf/code/CERTS/Biondo.pem'),
+            // key: fs.readFileSync('/Users/delacqf/code/CERTS/localhost.key.pem'),
+            // cert: fs.readFileSync('/Users/delacqf/code/CERTS/localhost.crt.pem'),
+            // pfx: '',
+        } */
     }
 }

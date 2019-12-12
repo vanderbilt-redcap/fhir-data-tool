@@ -3,6 +3,8 @@
     <section class="layout">
       
       <h3>menu goes here</h3>
+      <router-link :to="{name: 'home'}">home</router-link>
+      <router-link :to="{name: 'help'}">help</router-link>
       
       <div class="page-wrapper">
         <router-view />

@@ -14,7 +14,7 @@ function removeBaseUrlFromRoute($route)
 }
 
 // get the base url (to use it in routes)
-$base_url = '/'.basename(dirname(__DIR__));
+$base_url = '/'.basename(dirname(__DIR__)).'/api';
 // httpMethod, route, handler
 $routes = [
     [['GET','POST'], $base_url."/test[/{id:\d+}]", 'REDCap\FhirDataTool\App\Controllers\BaseController/test'],
