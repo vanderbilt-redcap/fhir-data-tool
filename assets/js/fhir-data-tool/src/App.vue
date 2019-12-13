@@ -7,7 +7,7 @@
 <script>
 import Vue from 'vue'
 import store from '@/store'
-import { router } from './router'
+import router from '@/router'
 
 import API from '@/API/plugin'
 Vue.use(API)
@@ -22,6 +22,12 @@ export default {
 }
 </script>
 
+<style>
+.router-link-exact-active {
+  color: blue;
+  font-weight: bold;
+}
+</style>
 <style scoped>
 .app {
   font-family: 'Avenir', Helvetica, Arial, sans-serif;
@@ -31,6 +37,6 @@ export default {
   color: #2c3e50;
   margin-top: 60px;
   width: 80%;
-  margin: 60px auto;
+  margin: 0px auto;
 }
 </style>

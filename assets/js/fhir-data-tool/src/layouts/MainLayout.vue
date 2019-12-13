@@ -1,10 +1,11 @@
 
 <template>
     <section class="layout">
-      
-      <h3>menu goes here</h3>
-      <router-link :to="{name: 'home'}">home</router-link>
-      <router-link :to="{name: 'help'}">help</router-link>
+      <img alt="REDCap logo" class="redcap-logo" src="@/assets/redcap_logo.png">
+      <nav>
+        <router-link :to="{name: 'home'}">home</router-link>
+        <router-link :to="{name: 'help'}">help</router-link>
+      </nav>
       
       <div class="page-wrapper">
         <router-view />
@@ -31,6 +32,9 @@ export default {
 </script>
 
 <style scoped>
+img.redcap-logo {
+  object-fit: contain;
+}
 .layout {
   min-height: 100vh;
   display: flex;
@@ -39,6 +43,9 @@ export default {
 .page-wrapper {
   padding: 0 25px;
   flex: 1;
+}
+nav a + a {
+  margin-left: 5px;
 }
 @media only screen and (max-width: 768px) {
 

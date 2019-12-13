@@ -1,7 +1,6 @@
 <template>
   <div class="home-page">
     <p>Home</p>
-    <img alt="Vue logo" src="@/assets/redcap_logo.png">
 
     <FhirForm class="fhir-form" />
     <ResourceContainer />

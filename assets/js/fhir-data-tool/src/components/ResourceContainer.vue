@@ -1,15 +1,15 @@
 <template>
   <div id="resource-container">
-    <h1>container</h1>
-    {{resource}}
     <ResourceRawData :raw_data="getSource(resource)" />
-    <LoincCodesTable :loinc_codes="[]" />
+    <LoincCodesTable :loinc_codes="[1,2,3]" />
   </div>
 </template>
 
 <script>
 import ResourceRawData from '@/components/resource/ResourceRawData'
 import LoincCodesTable from '@/components/LoincCodesTable'
+
+
 
 export default {
   name: 'resource-container',

@@ -16,7 +16,7 @@ class API {
         if(query_params.route) delete query_params.route
         const query = qs.stringify(query_params) */
         this.base_url = `${app_path_webroot}api` // /redcap_v999.0.0/
-        if(location.hostname==='localhost') this.base_url = 'https://localhost:8080/api'
+        if(location.hostname==='localhost') this.base_url = '/api'
     }
 
     getFhirResource(endpoint, mrn, params)
