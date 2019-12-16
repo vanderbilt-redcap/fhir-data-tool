@@ -7,11 +7,11 @@ module.exports = {
             errors: true
         },
         proxy: {
-            '/api': {
-                target: 'https://redcap.test/fhir-data-tool/api',
-                ws: true,
+            '/': {
+                target: 'https://redcap.test/fhir-data-tool',
+                ws: false,
                 changeOrigin: true,
-                pathRewrite: {'^/api': ''}
+                pathRewrite: {'^/': ''}
             },
         },
         /* https: {

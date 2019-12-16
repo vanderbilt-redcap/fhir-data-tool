@@ -22,9 +22,7 @@
     <tfoot>
 
     </tfoot>
-</table>
-
-
+  </table>
 
   </div>
 </template>
