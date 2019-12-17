@@ -1,2 +1,2 @@
-export {default as FhirResource} from './FhirResource/FhirResource'
-export {default as FhirResourceBundle} from './FhirResource/FhirResourceBundle'
+export {default as Resource} from './FhirResource/Resource'
+export {default as Bundle} from './FhirResource/Bundle'

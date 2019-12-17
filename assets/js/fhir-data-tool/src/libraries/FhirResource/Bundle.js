@@ -1,7 +1,7 @@
-import FhirResource from './FhirResource'
-import FhirResourceObservation from './FhirResourceObservation'
+import Resource from './Resource'
+import Observation from './Observation'
 
-class FhirResourceBundle extends  FhirResource {
+class Bundle extends  Resource {
 
     constructor(source={}) {
         super(source)
@@ -14,7 +14,7 @@ class FhirResourceBundle extends  FhirResource {
             const {resource, resource:{resourceType}} = entry
             switch (resourceType) {
                 case 'Observation':
-                    const observation = new FhirResourceObservation(resource)
+                    const observation = new Observation(resource)
                     results.push(observation)
                     break;
             
@@ -32,4 +32,4 @@ class FhirResourceBundle extends  FhirResource {
     }
 }
 
-export default FhirResourceBundle
+export default Bundle

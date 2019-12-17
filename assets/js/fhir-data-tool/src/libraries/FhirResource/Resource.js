@@ -1,13 +1,18 @@
+import Coding from './Coding'
 import {search} from 'jmespath'
 
-class FhirResource {
+class Resource {
     constructor(source={}) {
         this.source = source
     }
 
+    /**
+     * return a list of Coding
+     */
     get codings() {
-        const results = search({foo: {bar: {baz: [0, 1, 2, 3, 4]}}}, "foo.bar")
-        return results
+        const { code: {coding:codings=[]}} = this.source
+        const list = codings.map(coding => new Coding(coding))
+        return list
     }
 
     /**
@@ -19,4 +24,4 @@ class FhirResource {
     }
 }
 
-export default FhirResource
+export default Resource
