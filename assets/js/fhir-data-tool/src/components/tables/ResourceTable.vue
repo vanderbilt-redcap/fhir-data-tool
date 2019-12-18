@@ -1,24 +1,16 @@
 <template>
   <div id="loinc-codes-table">
-    <h1>Values</h1>
+    <h1>{{title}}</h1>
     <table class="table table-bordered no-table-striped">
       <thead>
         <th>entry #</th>
-        <th>Code</th>
-        <th>System</th>
-        <th>Description (from EHR, not from REDCap mapping)</th>
-        <th>Value</th>
-        <th>Date/time of service</th>
+        <th v-for="(header, key, index) in headers" :key="index">{{header}}</th>
       </thead>
       <tbody >
         <tr v-for="(row, index) in rows" :key="index" >
           <td :style="getGroupStyle(row._group)">{{(index)}}</td>
-          <td :style="getGroupStyle(row._group)">{{row.code}}</td>
-          <td :style="getGroupStyle(row._group)">{{row.system}}</td>
-          <td :style="getGroupStyle(row._group)">{{row.display}}</td>
-          <td :style="getGroupStyle(row._group)">{{row.value}}</td>
-          <td :style="getGroupStyle(row._group)">{{row.date}}</td>
-        </tr>
+          <td v-for="(header, header_key, header_index) in headers" :key="header_index" :style="getGroupStyle(row._group)">{{(row[header_key])}}</td>
+        </tr> 
       </tbody>
     <tfoot>
 
@@ -29,16 +21,9 @@
 </template>
 
 <script>
-const keys = [
-  'date',
-  'code',
-  'display',
-  'system',
-  'value',
-]
 
 export default {
-  name: 'observation-table',
+  name: 'resource-table',
   components: {
 
   },
@@ -46,6 +31,14 @@ export default {
     rotation_delta: 50
   }),
   props: {
+    title: {
+      type: String,
+      default: 'Values'
+    },
+    headers: {
+      type: Array|Object,
+      default: () => ([])
+    },
     rows: {
       type: Array,
       default: () => ([])

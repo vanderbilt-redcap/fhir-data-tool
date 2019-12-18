@@ -1,6 +1,7 @@
 <template>
   <div id="resource-container">
-    <ObservationTable :rows="rows" />
+    <!-- <ObservationTable :rows="rows" /> -->
+    <component :is="resource_table" v-bind="resource_table_props"/>
     <ResourceRawData :raw_data="source" />
     <button @click="onClick">extract</button>
   </div>
@@ -8,10 +9,10 @@
 
 <script>
 import ResourceRawData from '@/components/resource/ResourceRawData'
-import ObservationTable from '@/components/ObservationTable'
+// import ObservationTable from '@/components/ObservationTable'
 // import {test} from '@/libraries'
 import {Bundle} from '@/libraries'
-import {search} from 'jmespath'
+
 import observation_json from '@/assets/observation'
 import vital_signs_json from '@/assets/vital_signs'
 
@@ -20,17 +21,27 @@ export default {
   name: 'resource-container',
   components: {
     ResourceRawData,
-    ObservationTable,
+    // ObservationTable,
   },
   data: () => ({
-
+    resource_table: null,
+    resource_table_props: {},
   }),
   props: {
     data: {
       type: Object,
     }
   },
+  watch: {
+    source() {
+      this.renderData()
+    }
+  },
   computed: {
+    endpoint() {
+      const endpoint = this.$store.state.endpoint.current
+      return endpoint
+    },
     /**
      * get the resource from the store
      */
@@ -49,35 +60,78 @@ export default {
         return {}
       }
     },
-    rows() {
-      const rows = []
+  },
+  methods: {
+    renderData() {
       try {
         const source = this.source
         const {resourceType} = source
-
+        
         switch (resourceType) {
           case 'Bundle':
-            const bundle = new Bundle(source)
-            const entries = bundle.entries
-            entries.forEach((entry, index) => {
-              const entry_rows = this.getRowsFromEntry(entry)
-              const rows_with_group  = entry_rows.map(row => ({...row, _group: index}))
-              rows.push(...rows_with_group)
-            })
-            return rows
+            this.renderObservationBundleData()
             break
+          case 'Patient':
+            this.renderPatientData()
+            break;
           default:
+            this.renderResourceData()
+            break;
             break
         }
       } catch (error) {
         console.log(error)
-      }finally {
-        // return rows even if there is an error
-        return rows
       }
-    }
-  },
-  methods: {
+    },
+    renderObservationBundleData() {
+      const bundle = new Bundle(this.source)
+      const entries = bundle.entries
+      const rows = []
+      entries.forEach((entry, index) => {
+        const entry_rows = this.getRowsFromEntry(entry)
+        const rows_with_group  = entry_rows.map(row => ({...row, _group: index}))
+        rows.push(...rows_with_group)
+      })
+      const headers = {
+        code: 'Code',
+        system: 'System',
+        display: 'Description (from EHR, not from REDCap mapping)',
+        value: 'Value',
+        date: 'Date/time of service',
+      }
+      this.resource_table = () => import('@/components/tables/ResourceTable')
+      this.resource_table_props = {rows,headers}
+    },
+    renderResourceData() {
+      console.log('rendering a resource')
+    },
+    renderPatientData() {
+      const {data} = this.resource
+      // const headers = Object.keys(data)
+      const headers = {
+        'first_name': 'first name',
+        'last_name': 'last name',
+        'gender': 'gender',
+        'gender_code': 'gender code',
+        'ethnicity': 'ethnicity',
+        'ethnicity_code': 'ethnicity code',
+        'race': 'race',
+        'race_code': 'race code',
+        'birthdate': 'birthdate',
+        'address_city': 'address city',
+        'address_country': 'address country',
+        'address_postal_code': 'address postal code',
+        'address_state': 'address state',
+        'address_line': 'address line',
+        'phone_home': 'phone home',
+        'phone_mobile': 'phone mobile',
+        'email': 'email',
+        'is_deceased': 'is deceased',
+      }
+      
+      this.resource_table_props = {rows:[data], headers}
+      this.resource_table = () => import('@/components/tables/ResourceTable')
+    },
     getRowsFromEntry(entry) {
       const className = entry.constructor.name
       const rows = []

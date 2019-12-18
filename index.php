@@ -15,13 +15,31 @@ require_once( __DIR__.'/app/bootstrap.php');
 </head>
 <body>
     <!--Load Vue-->
-    <script src="https://unpkg.com/vue"></script>
+    <!-- <script src="https://unpkg.com/vue"></script> -->
     <!--Load the web component polyfill-->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/webcomponentsjs/1.2.0/webcomponents-loader.js"></script>
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/webcomponentsjs/1.2.0/webcomponents-loader.js"></script> -->
     <!--Load your custom element-->
-    <script src="./assets/js/fhir-data-tool/dist/fhir-data-tool.min.js"></script>
+    <!-- <script src="./assets/js/fhir-data-tool/dist/fhir-data-tool.min.js"></script> -->
     <!--Use your custom element-->
-    <fhir-data-tool msg="Hello..."></fhir-data-tool>
+    <!-- <fhir-data-tool msg="Hello..."></fhir-data-tool> -->
+
+    <script src="https://unpkg.com/vue"></script>
+    <script src="./assets/js/fhir-data-tool/dist/fhir_data_tool.umd.min.js"></script>
+
+    <link rel="stylesheet" href="./assets/js/fhir-data-tool/dist/fhir_data_tool.css">
+
+
+    <div id="app">
+        <datatool></datatool>
+    </div>
+
+    <script>
+    new Vue({
+    components: {
+        'datatool': fhir_data_tool
+    }
+    }).$mount('#app')
+    </script>
 </body>
 </html>
 

@@ -12,8 +12,6 @@
 
 <script>
 import EndpointSelector from '@/components/endpoints/EndpointSelector'
-import MedicationOrderFields from '@/components/endpoints/forms/MedicationOrderFields'
-import ObservationFields from '@/components/endpoints/forms/ObservationFields'
 
 export default {
   name: 'FhirForm',
@@ -36,10 +34,10 @@ export default {
           component = null
           break;
         case 'MedicationOrder':
-          component = MedicationOrderFields
+          component = () => import('@/components/endpoints/forms/MedicationOrderFields')
           break;
         case 'Observation':
-          component = ObservationFields
+          component = () => import('@/components/endpoints/forms/ObservationFields')
           break;
         default:
           break;
