@@ -1,9 +1,9 @@
 <template>
   <div class="fhir-form">
     <form @submit.prevent="onSubmit">
-      <EndpointSelector />
       <input type="text" name="mrn" v-model="mrn">
-      <component :is="endpointForm"></component>
+
+      <slot></slot>
       <button type="submit">submit</button>
     </form>
     <button @click="onCleanClick">clean results</button>
@@ -26,28 +26,31 @@ export default {
         this.$store.dispatch('endpoint/setMRN', value)
       },
     },
-    endpointForm() {
-      let component = null
-      const endpoint = this.$store.state.endpoint.current
-      switch (endpoint) {
-        case 'Condition':
-          component = null
+    endpoint() {
+      const {name:route_name} = this.$route
+      console.log(route_name)
+      switch (route_name) {
+        case 'patient':
+          return 'Patient'
           break;
-        case 'MedicationOrder':
-          component = () => import('@/components/endpoints/forms/MedicationOrderFields')
+        case 'medication-order':
+          return 'MedicationOrder'
           break;
-        case 'Observation':
-          component = () => import('@/components/endpoints/forms/ObservationFields')
+        case 'observation':
+          return 'Observation'
           break;
+        case 'condition':
+          return 'Condition'
+          break;
+      
         default:
           break;
       }
-      return component
-    },
+    }
   },
   methods: {
     async onSubmit() {
-      const endpoint = this.$store.state.endpoint.current
+      const endpoint = this.endpoint
       const mrn = this.$store.state.endpoint.mrn
       const all_params = this.$store.state.endpoint.params // global params object. contains params for every endpoint
       const params = all_params[endpoint] || [] // get extra params for the current endpoint

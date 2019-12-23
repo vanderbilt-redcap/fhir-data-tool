@@ -3,8 +3,11 @@
     <section class="layout">
       <img alt="REDCap logo" class="redcap-logo" src="@/assets/redcap_logo.png">
       <nav>
-        <router-link :to="{name: 'home'}">home</router-link>
-        <router-link :to="{name: 'help'}">help</router-link>
+        <router-link :to="{name: 'home'}">Home</router-link>
+        <router-link :to="{name: 'patient'}">Patient</router-link>
+        <router-link :to="{name: 'medication-order'}">Medication Order</router-link>
+        <router-link :to="{name: 'observation'}">Observation</router-link>
+        <router-link :to="{name: 'help'}">Help</router-link>
       </nav>
       
       <div class="page-wrapper">

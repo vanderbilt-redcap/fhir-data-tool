@@ -14,10 +14,10 @@ const module = {
     namespaced: true,
     state: {...initialState},
     mutations: {
-        SET_ENDPOINT: function(state, payload) {
+        /* SET_ENDPOINT: function(state, payload) {
             if(!endpoints.includes(payload)) return
             state.current = payload
-        },
+        }, */
         SET_MRN: function(state, payload) {
             state.mrn = payload
         },
@@ -26,9 +26,9 @@ const module = {
         },
     },
     actions: {
-        setEndpoint(context, endpoint) {
+        /* setEndpoint(context, endpoint) {
             context.commit('SET_ENDPOINT',endpoint)
-        },
+        }, */
         setMRN(context, mrn) {
             context.commit('SET_MRN',mrn)
         },

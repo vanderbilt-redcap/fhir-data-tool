@@ -1,6 +1,7 @@
 <template>
   <div class="help-page">
-    <h1>help</h1>
+    <h1>Help</h1>
+    <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Commodi natus illo quidem sit nulla magnam dolor alias quasi ipsam odit, neque nemo maxime expedita, tenetur illum suscipit quisquam, atque laborum!</p>
   </div>
 </template>
 

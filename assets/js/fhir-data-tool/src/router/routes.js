@@ -6,6 +6,9 @@ const routes = [
     { path: '/', component: () => import('@/layouts/MainLayout'),
         children: [
             { path: '', name: 'home', component: () => import('@/pages/Home') },
+            { path: '/patient', name: 'patient', component: () => import('@/pages/Patient') },
+            { path: '/medication-order', name: 'medication-order', component: () => import('@/pages/MedicationOrder') },
+            { path: '/observation', name: 'observation', component: () => import('@/pages/Observation') },
 
             { path: '/help', name: 'help', component: () => import('@/pages/Help') },
 
