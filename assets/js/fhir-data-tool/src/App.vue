@@ -24,8 +24,8 @@ export default {
 
 <style>
 .router-link-exact-active {
-  color: blue;
-  font-weight: bold;
+  color: black;
+  /* font-weight: bold; */
 }
 </style>
 <style scoped>

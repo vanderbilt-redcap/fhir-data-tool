@@ -2,13 +2,23 @@
 <template>
     <section class="layout">
       <img alt="REDCap logo" class="redcap-logo" src="@/assets/redcap_logo.png">
-      <nav>
-        <router-link :to="{name: 'home'}">Home</router-link>
-        <router-link :to="{name: 'patient'}">Patient</router-link>
-        <router-link :to="{name: 'medication-order'}">Medication Order</router-link>
-        <router-link :to="{name: 'observation'}">Observation</router-link>
-        <router-link :to="{name: 'help'}">Help</router-link>
-      </nav>
+      <ul class="nav nav-tabs">
+        <li class="nav-item">
+          <router-link class="nav-link" exact-active-class="active" :to="{name: 'home'}">Home</router-link>
+        </li>
+        <li class="nav-item">
+          <router-link class="nav-link" exact-active-class="active" :to="{name: 'patient'}">Patient</router-link>
+        </li>
+        <li class="nav-item">
+          <router-link class="nav-link" exact-active-class="active" :to="{name: 'medication-order'}">Medication Order</router-link>
+        </li>
+        <li class="nav-item">
+          <router-link class="nav-link" exact-active-class="active" :to="{name: 'observation'}">Observation</router-link>
+        </li>
+        <li class="nav-item">
+          <router-link class="nav-link" exact-active-class="active" :to="{name: 'help'}">Help</router-link>
+        </li>
+      </ul>
       
       <div class="page-wrapper">
         <router-view />
