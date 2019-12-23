@@ -1,7 +1,5 @@
 <template>
   <div class="home-page">
-    <p>Medication Order</p>
-
     <FhirForm class="fhir-form">
       <MedicationOrderFields />
     </FhirForm>

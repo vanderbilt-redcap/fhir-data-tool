@@ -1,7 +1,5 @@
 <template>
   <div class="home-page">
-    <p>Observation</p>
-
     <FhirForm class="fhir-form">
       <ObservationFields />
     </FhirForm>
@@ -13,6 +11,8 @@
 import FhirForm from '@/components/FhirForm'
 import ResourceContainer from '@/components/ResourceContainer'
 import ObservationFields from'@/components/observation/ObservationFields'
+// temp for development
+import observation_json from '@/assets/observation'
 
 export default {
   name: 'ObservationPage',

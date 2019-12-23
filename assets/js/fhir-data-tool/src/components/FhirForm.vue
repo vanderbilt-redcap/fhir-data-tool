@@ -1,12 +1,18 @@
 <template>
   <div class="fhir-form">
-    <form @submit.prevent="onSubmit">
-      <input type="text" name="mrn" v-model="mrn">
 
+    <form @submit.prevent="onSubmit">
+      <div class="form-group mb-2">
+        <label for="mrn" class="mr-2">MRN</label>
+        <input type="text" class="form-control" id="mrn" v-model="mrn" placeholder="insert a medical record number">
+      </div>
+      
       <slot></slot>
-      <button type="submit">submit</button>
+
+      <button type="submit" class="btn btn-primary">Submit</button>
     </form>
-    <button @click="onCleanClick">clean results</button>
+
+    <button class="btn btn-info" @click="onCleanClick">clean results</button>
   </div>
 </template>
 
@@ -79,9 +85,6 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 form {
-  display: flex;
   margin-bottom: 10px;
-  align-items: flex-start;
-  justify-content: center;
 }
 </style>

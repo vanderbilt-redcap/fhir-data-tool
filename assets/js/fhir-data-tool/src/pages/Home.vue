@@ -1,9 +1,6 @@
 <template>
   <div class="home-page">
-    <p>Home</p>
 
-    <FhirForm class="fhir-form" />
-    <ResourceContainer />
   </div>
 </template>
 
