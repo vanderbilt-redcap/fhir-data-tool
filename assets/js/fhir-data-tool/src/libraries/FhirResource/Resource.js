@@ -9,11 +9,11 @@ class Resource {
     /**
      * return a list of Coding
      */
-    get codings() {
-        const { code: {coding:codings=[]}} = this.source
+    /* get codings() {
+        const { coding:codings=[]} = this.source && this.source.code || {}
         const list = codings.map(coding => new Coding(coding))
         return list
-    }
+    } */
 
     /**
      * expose the search method from jmesPath

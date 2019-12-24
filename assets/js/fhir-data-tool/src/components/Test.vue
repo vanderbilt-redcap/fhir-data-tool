@@ -69,8 +69,6 @@ export default {
       try {
         const resolved = await Promise.all(promises)
         this.processing = false
-        console.log(entries)
-        console.log('end')
         this.list = entries
         this.$store.dispatch('resource/setResources',{resources})
       } catch (error) {

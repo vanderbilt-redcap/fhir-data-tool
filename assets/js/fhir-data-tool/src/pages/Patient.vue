@@ -1,6 +1,12 @@
 <template>
   <div class="home-page">
     <FhirForm class="fhir-form"></FhirForm>
+    <div v-if="Object.keys(data).length" class="card p-2">
+      <!-- print patient data -->
+      <div  v-for="(value, key) in data" :key="key">
+          <span class="label">{{key}}:</span><span> {{value}}</span>
+      </div>
+    </div>
     <ResourceContainer />
   </div>
 </template>
@@ -8,7 +14,6 @@
 <script>
 import FhirForm from '@/components/FhirForm'
 import ResourceContainer from '@/components/ResourceContainer'
-import ResourceTable from '@/components/tables/ResourceTable'
 
 const table_headers = {
     'first_name': 'first name',
@@ -36,7 +41,6 @@ export default {
   components: {
     FhirForm,
     ResourceContainer,
-    ResourceTable
   },
   data: () => ({
       table_headers,
@@ -44,14 +48,32 @@ export default {
   props: {
     msg: String
   },
-  methods: {},
-  computed: {}
+  computed: {
+    resource() {
+      try {
+        
+        const { resource={} } = this.$store.state.resource
+        const {metadata:{resourceType}} = resource
+        console.log(resourceType)
+        // make sure the resource is of type patient
+        if(resourceType!=='Patient') return {}
+        console.log(resource)
+        return resource
+        } catch (error) {
+          return {}
+        }
+    },
+    data() {
+      const {data={}} = this.resource
+      return data
+    },
+  }
 }
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-.fhir-form {
-  margin-bottom: 10px;
+.label {
+  font-weight: bold;
 }
 </style>

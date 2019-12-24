@@ -54,7 +54,7 @@ img.redcap-logo {
   flex-direction: column;
 }
 .page-wrapper {
-  padding: 0 25px;
+  padding: 25px 0;
   flex: 1;
 }
 nav a + a {

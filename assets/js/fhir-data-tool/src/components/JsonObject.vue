@@ -8,8 +8,9 @@
           <template v-if="!valueIsEmpty">
             <div v-if="collapsed" class="ellipsis" @click="toggleChildren">...</div>
             <div v-else class="node" >
-              <div v-for="(item, key) in value" :key="key" class="item">
+              <div v-for="(item, key, index) in value" :key="key" class="item">
                 <JsonObject :key_name="key" :value="item" :depth="depth+1"/>
+                <span v-if="(index<(Object.keys(value).length-1))">,</span>
               </div>
             </div>
           </template>
@@ -158,9 +159,6 @@ pre {
 }
 .key {
   margin-right: 2px;
-}
-.item:not(:last-child) > .json::after {
-  content: ',';
 }
 .item .json,
 .parenthesis,

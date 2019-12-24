@@ -1,9 +1,12 @@
 <template>
   <div class="medicationorder-params">
-      <div v-for="(status, index) in status_list" :key="index" >
-        <label :for="`status-${index}`">{{status}}</label>
-        <input type="checkbox" name="status" :id="`status-${index}`" :value="status" v-model="checked">
-      </div>
+    <fieldset>Medication status</fieldset>
+    <div class="form-check form-check-inline" v-for="(status, index) in status_list" :key="index" >
+      <input class="form-check-input" type="checkbox" name="status" :id="`status-${index}`" :value="status" v-model="checked">
+      <label class="form-check-label" :for="`status-${index}`">
+        {{status}}
+      </label>
+    </div>
   </div>
 </template>
 

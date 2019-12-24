@@ -1,18 +1,20 @@
 <template>
   <div class="fhir-form">
 
-    <form @submit.prevent="onSubmit">
+    <form class="my-2" @submit.prevent="onSubmit">
       <div class="form-group mb-2">
-        <label for="mrn" class="mr-2">MRN</label>
-        <input type="text" class="form-control" id="mrn" v-model="mrn" placeholder="insert a medical record number">
+        <label for="mrn" class="mr-2">Medical Record Number</label>
+        <input type="text" class="form-control" id="mrn" v-model="mrn" placeholder="MRN">
       </div>
       
       <slot></slot>
-
-      <button type="submit" class="btn btn-primary">Submit</button>
+      
+      <div class="buttons my-2">
+          <button class="btn btn-primary" type="submit" >Submit</button>
+          <button class="btn btn-info" type="button" @click="onCleanClick">clean results</button>
+      </div>
     </form>
 
-    <button class="btn btn-info" @click="onCleanClick">clean results</button>
   </div>
 </template>
 
@@ -34,7 +36,6 @@ export default {
     },
     endpoint() {
       const {name:route_name} = this.$route
-      console.log(route_name)
       switch (route_name) {
         case 'patient':
           return 'Patient'
@@ -57,6 +58,10 @@ export default {
   methods: {
     async onSubmit() {
       const endpoint = this.endpoint
+      if(!endpoint) {
+        alert('invalid endpoint')
+        return
+      }
       const mrn = this.$store.state.endpoint.mrn
       const all_params = this.$store.state.endpoint.params // global params object. contains params for every endpoint
       const params = all_params[endpoint] || [] // get extra params for the current endpoint
@@ -86,5 +91,8 @@ export default {
 <style scoped>
 form {
   margin-bottom: 10px;
+}
+.buttons button + button {
+  margin-left: 5px;
 }
 </style>

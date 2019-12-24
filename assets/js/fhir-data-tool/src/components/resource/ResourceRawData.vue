@@ -4,7 +4,7 @@
     <details>
       <summary>source</summary>
       <JsonObject :value="raw_data" />
-      <button @click="copyData">copy</button>
+      <button class="btn btn-primary" @click="copyData">copy</button>
     </details>
   </div>
 </template>
