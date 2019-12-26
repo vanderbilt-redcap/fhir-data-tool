@@ -1,12 +1,19 @@
 <template>
   <div class="home-page">
     <FhirForm class="fhir-form"></FhirForm>
-    <div v-if="Object.keys(data).length" class="card p-2">
-      <!-- print patient data -->
-      <div  v-for="(value, key) in data" :key="key">
-          <span class="label">{{key}}:</span><span> {{value}}</span>
-      </div>
-    </div>
+    <!-- print patient data -->
+    <table v-if="Object.keys(data).length" class="table table-striped table-bordered">
+      <thead>
+        <th>key</th>
+        <th>value</th>
+      </thead>
+      <tbody>
+        <tr  v-for="(value, key) in data" :key="key">
+            <td>{{key}}</td>
+            <td>{{value}}</td>
+        </tr>
+      </tbody>
+    </table>
     <ResourceContainer />
   </div>
 </template>
@@ -54,10 +61,8 @@ export default {
         
         const { resource={} } = this.$store.state.resource
         const {metadata:{resourceType}} = resource
-        console.log(resourceType)
         // make sure the resource is of type patient
         if(resourceType!=='Patient') return {}
-        console.log(resource)
         return resource
         } catch (error) {
           return {}

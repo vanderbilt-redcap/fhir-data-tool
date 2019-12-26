@@ -4,7 +4,7 @@ import {intersection} from 'lodash'
 
 class Observation extends  Resource {
 
-    value_keys = [
+    static value_keys = [
         'valueQuantity',
         'valueCodeableConcept',
         'valueString',
@@ -47,12 +47,50 @@ class Observation extends  Resource {
     }
 
     /**
+     * get the codings from the values ObservationValue[]
+     */
+    get codings() {
+        const results = []
+        const date = this.date
+        this.values.forEach(value => {
+            const {codings} = value
+            if(codings.length==0) {
+                const row = {
+                    date,
+                    // code:'',
+                    display: value.display, // display from coding or from code.text
+                    // system:'',
+                    value: value.toString(),
+                }
+                // collect the row
+                results.push(row)
+            }else {
+            // loop through all codings of the value
+                codings.forEach(coding => {
+                    // create a row
+                    const {code, display, system} = coding
+                    const row = {
+                    date,
+                    code,
+                    display, // display from coding or from code.text
+                    system,
+                    value: value.toString(),
+                    }
+                    // collect the row
+                    results.push(row)
+                })
+            }
+        })
+        return results
+    }
+
+    /**
      * get an instance of ObservationValue
      * @param {object} component 
      */
     getValue(component) {
         const keys = Object.keys(component)
-        const found = intersection(keys, this.value_keys)
+        const found = intersection(keys, Observation.value_keys)
         const key = found[0] || ''
         const value = new ObservationValue(key, component)
         return value
@@ -209,6 +247,12 @@ class ObservationValue extends Resource{
                 break
         }
         return text
+    }
+
+    get codings() {
+        const { coding:codings=[]} = this.source && this.source.code || {}
+        const list = codings.map(coding => new Coding(coding))
+        return list
     }
 }
 

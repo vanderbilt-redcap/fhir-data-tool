@@ -28,14 +28,10 @@ class Bundle extends  Resource {
                     break;
             }
             
-        });
+        })
         return results
     }
 
-    get codings() {
-        const results = this.search({foo: {bar: {baz: [0, 1, 2, 3, 4]}}}, "foo.bar")
-        return results
-    }
 }
 
 export default Bundle

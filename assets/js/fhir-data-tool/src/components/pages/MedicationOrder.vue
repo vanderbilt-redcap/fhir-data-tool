@@ -30,6 +30,7 @@
 
 <script>
 import Bundle from '@/libraries/FhirResource/Bundle'
+import MedicationOrder from'@/libraries/FhirResource/MedicationOrder'
 
 import FhirForm from '@/components/FhirForm'
 import ResourceContainer from '@/components/ResourceContainer'
@@ -51,7 +52,11 @@ export default {
       try {
         const {source={}} = this.resource && this.resource.metadata || {}
         const bundle = new Bundle(source)
-        return bundle.entries
+        // make sure every entry is of type MedicationOrder
+        const entries = bundle.entries.filter( entry => {
+          return entry instanceof MedicationOrder
+        })
+        return entries
       } catch (error) {
         console.log(error)
         return []  
