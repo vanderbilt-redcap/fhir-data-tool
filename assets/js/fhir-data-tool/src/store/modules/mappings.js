@@ -1,8 +1,10 @@
-import Vue from 'vue'
+/**
+ * store for mapping values or keys
+ */
 
 const initialState = {
     values: [],
-    key: [],
+    keys: [],
 }
 
 const module = {
@@ -12,8 +14,8 @@ const module = {
         SET_VALUES: function(state, {values}) {
             state.values = values
         },
-        SET_KEY: function(state, {key}) {
-            state.key = key
+        SET_KEYS: function(state, {keys}) {
+            state.key = keys
         },
     },
     actions: {
@@ -21,7 +23,7 @@ const module = {
             context.commit('SET_VALUES',{resource})
         },
         setKey(context, {key}) {
-            context.commit('SET_KEY',{resources})
+            context.commit('SET_KEYS',{resources})
         }
     },
     getters: {

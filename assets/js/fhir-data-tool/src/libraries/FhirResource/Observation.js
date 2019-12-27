@@ -22,9 +22,9 @@ class Observation extends  Resource {
     }
 
     get date() {
-        const {effectiveDateTime} = this.source
-        if(!effectiveDateTime) return ''
-        const date = new Date(effectiveDateTime)
+        const {effectiveDateTime='', issued=''} = this.source
+        const date_string = effectiveDateTime || issued // date in social history could come from "issued"
+        const date = new Date(date_string)
         return date
     }
 

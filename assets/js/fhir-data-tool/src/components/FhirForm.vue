@@ -19,11 +19,10 @@
 </template>
 
 <script>
-import EndpointSelector from '@/components/endpoints/EndpointSelector'
 
 export default {
   name: 'FhirForm',
-  components: { EndpointSelector },
+  components: {  },
   data: () => ({ }),
   computed: {
     mrn: {

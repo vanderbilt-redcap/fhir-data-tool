@@ -18,6 +18,9 @@
         <li class="nav-item">
           <router-link class="nav-link" exact-active-class="active" :to="{name: 'help'}">Help</router-link>
         </li>
+        <li class="nav-item">
+          <router-link class="nav-link" exact-active-class="active" :to="{name: 'fhir_metadata'}">FHIR Metadata</router-link>
+        </li>
       </ul>
       
       <div class="page-wrapper">

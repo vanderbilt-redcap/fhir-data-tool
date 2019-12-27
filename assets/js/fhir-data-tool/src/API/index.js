@@ -86,5 +86,33 @@ class API {
             }
         })
     }
+
+    getFhirMetadata() {
+        var url = `${this.base_url}`
+        const route = 'FhirDataToolController:getFhirMetadata'
+        // get parameters from the current URL
+        const query_params = qs.parse(location.search, { ignoreQueryPrefix: true })
+        const request_params = {
+            route,
+        }
+        // extra params to be used in development mode
+        if(location.hostname==='localhost') {
+            request_params.userid = query_params.userid || 'delacqf'
+            // ATTENTION: if the pid is not a real project the call will fail
+            // request_params.pid = query_params.pid || 0 // add the project ID or the request will fail
+        }
+        url += '/fhir_metadata'
+        return axios.get(url, {
+            params: request_params,
+            paramsSerializer: params => {
+                /**
+                 * set a serializer for the params
+                 * FHIR endpoints like the repeat arrayFormat.
+                 * available formats are indices, brackets, repeat, comma
+                 */
+                return qs.stringify(params, { arrayFormat: 'indices' })
+            }
+        })
+    }
 }
 export default API

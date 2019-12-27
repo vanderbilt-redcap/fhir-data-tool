@@ -147,7 +147,7 @@ pre {
 .json {
   text-align: left;
   display: block;
-  /* user-select: none; */
+  user-select: none;
 }
 .item {
   display: inline-block;

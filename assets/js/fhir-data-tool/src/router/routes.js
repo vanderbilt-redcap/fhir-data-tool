@@ -11,7 +11,7 @@ const routes = [
             { path: '/observation', name: 'observation', component: () => import('@/components/pages/Observation') },
 
             { path: '/help', name: 'help', component: () => import('@/components/pages/Help') },
-            { path: '/video', name: 'video', component: () => import('@/components/pages/Video') },
+            { path: '/fhir_metadata', name: 'fhir_metadata', component: () => import('@/components/pages/FhirMetadata') },
 
             { path: "*", name: 'not_found', component: () => import('@/components/pages/PageNotFound')  }
         ]

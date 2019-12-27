@@ -9,9 +9,7 @@
 export default {
   name: 'HelpPage',
   components: {},
-  props: {
-    msg: String
-  },
+  props: {},
   methods: {},
   computed: {}
 }

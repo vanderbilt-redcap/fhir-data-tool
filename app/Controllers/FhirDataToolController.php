@@ -1,6 +1,8 @@
 <?php
 namespace REDCap\FhirDataTool\App\Controllers
 {
+
+    use DynamicDataPull;
     use REDCap\FhirDataTool\App\Models\FhirDataTool;
 
     /**
@@ -94,6 +96,41 @@ namespace REDCap\FhirDataTool\App\Controllers
             $tokens = $this->model->getTokens($user);
             $response = $tokens;
             $this->printJSON($response, $status_code=200);
+        }
+
+        private function groupFields($fields)
+        {
+            $groups = array();
+            foreach ($fields as $field) {
+                $category = $field['category'];
+                if(empty($category)) continue; //category must be set
+                // make sure category is an array
+                if(!is_array($groups[$category])) $groups[$category] = array();
+                // priority to sub categories
+                if($sub_category = $field['subcategory'])
+                {
+                    // make sure sub_category is an array
+                    if(!is_array($groups[$category][$sub_category])) $groups[$category][$sub_category] = array();
+                    $groups[$category][$sub_category][] = $field;
+                }else
+                {
+                    $groups[$category][] = $field;
+                }
+            }
+            return $groups;
+        }
+
+        /**
+         * get 
+         *
+         * @return void
+         */
+        public function getFhirMetadata()
+        {
+            $ddp = new \DynamicDataPull(0, 'FHIR');
+            $source_fields = $ddp->getExternalSourceFields();
+            $fields = $this->groupFields($source_fields);
+            $this->printJSON(compact('fields'), $status_code=200);
         }
 
         public function index()

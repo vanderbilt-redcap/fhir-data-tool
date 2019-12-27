@@ -22,6 +22,7 @@ $routes = [
     ['GET', $base_url.'/resource', 'REDCap\FhirDataTool\App\Controllers\FhirDataToolController/fetchFhirPatientResource'],
     ['GET', $base_url.'/tokens', 'REDCap\FhirDataTool\App\Controllers\FhirDataToolController/getTokens'],
     ['GET', $base_url.'/index', 'REDCap\FhirDataTool\App\Controllers\FhirDataToolController/index'],
+    ['GET', $base_url.'/fhir_metadata', 'REDCap\FhirDataTool\App\Controllers\FhirDataToolController/getFhirMetadata'],
 ];
 
 // create a BaseController to manage common routes or errors

@@ -3,29 +3,30 @@
     <FhirForm class="fhir-form">
       <ObservationFields />
     </FhirForm>
-
-    <table class="table table-striped table-bordered" v-if="Object.entries(grouped_codings).length">
-      <thead>
-        <th>#</th>
-        <th>Description (from EHR, not from REDCap mapping)</th>
-        <th>Code</th>
-        <th>System</th>
-        <th>Value</th>
-        <th>Date/time of service</th>
-      </thead>
-      <!-- codings are grouped by observation -->
-      <tbody :style="getGroupStyle(index)" v-for="(group, index) in grouped_codings" :key="index">
-        <tr v-for="(coding, coding_index) in group" :key="coding_index">
-          <td>{{index}}</td>
-          <td>{{coding.display}}</td>
-          <td>{{coding.code}}</td>
-          <td>{{coding.system}}</td>
-          <td>{{coding.value}}</td>
-          <td>{{coding.date}}</td>
-        </tr>
-      </tbody>
-    </table>
-
+    <div v-if="Object.entries(grouped_codings).length">
+      <table class="table table-striped table-bordered">
+        <thead>
+          <th>#</th>
+          <th>Description (from EHR, not from REDCap mapping)</th>
+          <th>Code</th>
+          <th>System</th>
+          <th>Value</th>
+          <th>Date/time of service</th>
+        </thead>
+        <!-- codings are grouped by observation -->
+        <tbody :style="getGroupStyle(index)" v-for="(group, index) in grouped_codings" :key="index">
+          <tr v-for="(coding, coding_index) in group" :key="coding_index">
+            <td>{{index}}</td>
+            <td>{{coding.display}}</td>
+            <td>{{coding.code}}</td>
+            <td>{{coding.system}}</td>
+            <td>{{coding.value}}</td>
+            <td>{{coding.date}}</td>
+          </tr>
+        </tbody>
+      </table>
+      <button type="button" class="btn btn-info my-2" @click="toggleGroups">toggle groups</button>
+    </div>
     <ResourceContainer />
   </div>
 </template>
@@ -44,6 +45,9 @@ import observation_json from '@/assets/observation'
 
 export default {
   name: 'ObservationPage',
+  data: () => ({
+    show_groups: false,
+  }),
   components: {
     FhirForm,
     ResourceContainer,
@@ -81,14 +85,17 @@ export default {
       const entries = this.entries
       const groups = {}
       entries.forEach((entry, index) => {
-        console.log(index, ...entry.codings)
         groups[index] = [...entry.codings]
       })
       return groups
     },
   },
   methods: {
+    toggleGroups() {
+      this.show_groups = !this.show_groups
+    },
     getGroupStyle(index) {
+      if(!this.show_groups) return
       const rotation_delta = 160
       if(isNaN(index)) index=0
       const style = {
