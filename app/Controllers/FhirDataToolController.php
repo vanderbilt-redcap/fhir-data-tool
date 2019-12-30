@@ -130,7 +130,8 @@ namespace REDCap\FhirDataTool\App\Controllers
             $ddp = new \DynamicDataPull(0, 'FHIR');
             $source_fields = $ddp->getExternalSourceFields();
             $fields = $this->groupFields($source_fields);
-            $this->printJSON(compact('fields'), $status_code=200);
+            $data = array('fields' => $fields);
+            $this->printJSON($data, $status_code=200);
         }
 
         public function index()

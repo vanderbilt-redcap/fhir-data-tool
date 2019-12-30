@@ -9,7 +9,7 @@
       </div>
     </div> -->
     <!-- <my-test /> -->
-    <FhirMetadataNode :fields="fhir_metadata" :expanded="true"/>
+    <FhirMetadataNode :metadata="fhir_metadata" />
   </div>
 </template>
 
@@ -43,12 +43,6 @@ export default {
     fhir_metadata() {
       const {fields} = this.$store.state.fhir_metadata
       return fields
-    }
-  },
-  methods: {
-    async onClick() {
-      const response = await this.$API.getFhirMetadata()
-      console.log(response.data)
     }
   },
 }

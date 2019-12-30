@@ -1,17 +1,21 @@
 <template>
-    <div class="fhir-metadata-node" @innerClick="onInnerClick">
-        {{expanded}}{{chidlren_expanded}}
-        <ul v-for="(field, key) in fields" :key="key" class="children" >
-            <li v-if="field.field">
-                {{field.field}}
-            </li>
-            <li v-else class="category" @click="onClick($event)">
-                <span class="label" >{{key}}</span>
-                <FhirMetadataNode :fields="field" />
-            </li>
-        </ul>
+    <div class="fhir-metadata-node">
+        <span v-if="label" @click.stop="onClick($event)" class="label">{{label}}</span>
+        <div class="content" v-show="expanded">
+
+            <span v-if="metadata.field">
+                {{metadata.field}} ({{metadata.label}})
+            </span>
+
+            <ul v-else>
+                <li v-for="(sub_metadata, key) in metadata" :key="key" :class="{collapsable: isNaN(key)}">
+                    <FhirMetadataNode :metadata="sub_metadata" :label="(isNaN(key)) ? key : ''" :key="key" @click.stop="onClickNode($event)" :depth="depth+1" />
+                </li>
+            </ul>
+        </div>
     </div>
 </template>
+
 
 <script>
 import FhirMetadataNode from '@/components/FhirMetadataNode'
@@ -22,29 +26,31 @@ export default {
     FhirMetadataNode,
   },
   data: () => ({
-      chidlren_expanded: false
+      expanded: true
   }),
+  created() {
+      // depth 0 always expanded
+      this.expanded = !this.label
+  },
   props: {
-      fields: {
+      metadata: {
           type: Object|Array,
-          default: {}
+          default: () => ({})
       },
-      expanded: {
-          type: Boolean,
-          default: true
+      label: {
+          type: String,
+          default: ''
+      },
+      depth: {
+          type: Number,
+          default: 0
       },
   },
   computed: {},
   methods: {
       onClick(e) {
-          this.chidlren_expanded = !this.chidlren_expanded
-          console.log('onClick', e, e.target)
-          this.$emit('innerClick')
+          this.expanded = !this.expanded
       },
-      onInnerClick(e) {
-          //this.chidlren_expanded = !this.chidlren_expanded
-          console.log('onInnerClick', e, e.target)
-      }
   },
 }
 </script>
@@ -52,13 +58,9 @@ export default {
 <style>
 .fhir-metadata-node ul,
 .fhir-metadata-node li {
-    margin: 0;
-    padding: 0;
 }
-.fhir-metadata-node .category > .label {
+.fhir-metadata-node .label {
  font-weight: bold;
-}
-.fhir-metadata-node .children {
-    margin-left: 10px;
+ cursor: pointer;
 }
 </style>
