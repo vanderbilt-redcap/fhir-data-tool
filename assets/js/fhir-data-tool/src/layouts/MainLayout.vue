@@ -28,22 +28,17 @@
       </div>
       
       <h3>footer goes here</h3>
+      <Modal />
     </section>
 </template>
 
 <script>
-
+import Modal from '@/components/Modal'
 export default {
   name: 'MainLayout',
   components: {
+    Modal,
   },
-  data() {
-    return {}
-  },
-  props: {},
-  methods: {},
-  created() {},
-  computed: {}
 }
 </script>
 

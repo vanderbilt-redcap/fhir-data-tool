@@ -76,6 +76,12 @@ namespace REDCap\FhirDataTool\App\Models
             
         }
 
+        public function getProjectInfo($project_id)
+        {
+            $project = new \Project($project_id);
+            return $project;
+        }
+
         /**
          * get the access token string
          *

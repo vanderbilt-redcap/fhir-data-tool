@@ -1,6 +1,8 @@
 <template>
   <section class="app">
     <router-view/>
+    <DataLoader />
+    <ProgressBar :total="3" :progress="2"/>
   </section>
 </template>
 
@@ -12,11 +14,13 @@ import router from '@/router'
 import API from '@/API/plugin'
 Vue.use(API)
 
-import App from './App.vue'
-
+import App from '@/App.vue'
+import DataLoader from '@/components/DataLoader'
+import ProgressBar from '@/components/ProgressBar'
 
 export default {
   name: 'app',
+  components: {DataLoader,ProgressBar,},
   store,
   router,
 }

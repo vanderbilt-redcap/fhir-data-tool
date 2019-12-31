@@ -51,6 +51,14 @@ namespace REDCap\FhirDataTool\App\Controllers
             $this->printJSON($response, $status_code=200);
         }
 
+        public function getProjectInfo()
+        {
+            $project_id = $_GET['pid'];
+            $project_info = $this->model->getProjectInfo($project_id);
+            $response = $project_info;
+            $this->printJSON($response, $status_code=200);
+        }
+
         /**
          * route, get a list of revisions
          *

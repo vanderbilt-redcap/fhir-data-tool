@@ -23,6 +23,7 @@ $routes = [
     ['GET', $base_url.'/tokens', 'REDCap\FhirDataTool\App\Controllers\FhirDataToolController/getTokens'],
     ['GET', $base_url.'/index', 'REDCap\FhirDataTool\App\Controllers\FhirDataToolController/index'],
     ['GET', $base_url.'/fhir_metadata', 'REDCap\FhirDataTool\App\Controllers\FhirDataToolController/getFhirMetadata'],
+    ['GET', $base_url.'/project_info', 'REDCap\FhirDataTool\App\Controllers\FhirDataToolController/getProjectInfo'],
 ];
 
 // create a BaseController to manage common routes or errors
@@ -32,4 +33,10 @@ $router = new Router($routes, $baseController);
 
 $route = Router::extractRoute();
 
+function randomDelay() {
+    $random_delta = rand(1,10);
+    $sleep_time = 1*$random_delta;
+    sleep($sleep_time);
+}
+    
 $router->dispatch($route);
