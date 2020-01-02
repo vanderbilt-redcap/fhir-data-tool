@@ -10,7 +10,7 @@
       <slot></slot>
       
       <div class="buttons my-2">
-          <button class="btn btn-primary" type="submit" >Submit</button>
+          <button class="btn btn-primary" type="submit" :disabled="!canSubmit" >Submit</button>
           <button class="btn btn-info" type="button" @click="onCleanClick">clean results</button>
       </div>
     </form>
@@ -32,6 +32,9 @@ export default {
       set(value) {
         this.$store.dispatch('endpoint/setMRN', value)
       },
+    },
+    canSubmit() {
+      return Boolean(this.mrn.trim())
     },
     endpoint() {
       const {name:route_name} = this.$route

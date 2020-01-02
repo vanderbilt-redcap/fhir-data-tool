@@ -82,6 +82,37 @@ namespace REDCap\FhirDataTool\App\Models
             return $project;
         }
 
+        public function getDatamartRevision($project_id)
+        {
+            $project =$this->getProjectInfo($project_id);
+            if($datamart_enabled = $project->project['datamart_enabled'])
+            {
+                if($active_revision = \DataMartRevision::getActive($project_id))
+                {
+                    return $active_revision;
+                }
+                return false;
+            }else
+            {
+                return false;
+            }
+        }
+
+        public function getClinicalDataPullMapping($project_id)
+        {
+            $query_string = sprintf(
+                'SELECT * FROM redcap_ddp_mapping
+                WHERE project_id = %u', $project_id
+            );
+            $result = db_query($query_string);
+            $mapping = array();
+            while($row = db_fetch_assoc($result))
+            {
+                $mapping[] = $row;
+            }
+            return $mapping;
+        }
+
         /**
          * get the access token string
          *

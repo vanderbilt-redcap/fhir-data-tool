@@ -32,6 +32,18 @@ class Bundle extends  Resource {
         return results
     }
 
+    /**
+     * return a list of entries filtered by class
+     * 
+     * @param {class} type_class 
+     */
+    getEntriesOfType(type_class) {
+        const entries = this.entries.filter( entry => {
+            return entry instanceof type_class
+        })
+        return entries
+    }
+
 }
 
 export default Bundle

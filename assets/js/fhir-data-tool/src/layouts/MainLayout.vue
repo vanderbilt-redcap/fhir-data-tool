@@ -2,42 +2,26 @@
 <template>
     <section class="layout">
       <img alt="REDCap logo" class="redcap-logo" src="@/assets/redcap_logo.png">
-      <ul class="nav nav-tabs">
-        <li class="nav-item">
-          <router-link class="nav-link" exact-active-class="active" :to="{name: 'home'}">Home</router-link>
-        </li>
-        <li class="nav-item">
-          <router-link class="nav-link" exact-active-class="active" :to="{name: 'patient'}">Patient</router-link>
-        </li>
-        <li class="nav-item">
-          <router-link class="nav-link" exact-active-class="active" :to="{name: 'medication-order'}">Medication Order</router-link>
-        </li>
-        <li class="nav-item">
-          <router-link class="nav-link" exact-active-class="active" :to="{name: 'observation'}">Observation</router-link>
-        </li>
-        <li class="nav-item">
-          <router-link class="nav-link" exact-active-class="active" :to="{name: 'help'}">Help</router-link>
-        </li>
-        <li class="nav-item">
-          <router-link class="nav-link" exact-active-class="active" :to="{name: 'fhir_metadata'}">FHIR Metadata</router-link>
-        </li>
-      </ul>
+      <Menu />
       
       <div class="page-wrapper">
         <router-view />
       </div>
       
-      <h3>footer goes here</h3>
+      <footer>REDCap - © 2020 Vanderbilt University</footer>
       <Modal />
     </section>
 </template>
 
 <script>
 import Modal from '@/components/Modal'
+import Menu from '@/components/Menu'
+
 export default {
   name: 'MainLayout',
   components: {
     Modal,
+    Menu,
   },
 }
 </script>

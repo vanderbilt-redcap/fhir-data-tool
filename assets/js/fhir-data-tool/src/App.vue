@@ -2,7 +2,6 @@
   <section class="app">
     <router-view/>
     <DataLoader />
-    <ProgressBar :total="3" :progress="2"/>
   </section>
 </template>
 

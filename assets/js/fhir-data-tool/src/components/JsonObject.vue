@@ -1,7 +1,7 @@
 <template>
   <div class="json" :class="{collapsed: collapsed, activeValue: activeValue}">
       <div v-if="showKey" class="key" :class="{active: activeKey}" @click="onKeyClick(key_name, $event)" :title="path">"{{key_name}}":</div>
-      <template v-if="typeof value === 'object'">
+      <template v-if="value && typeof value === 'object'">
           <div class="parenthesis">{{type==='array' ? '[' : '{'}}</div>
           <div @click="toggleChildren" class="children-toggler">▶</div>
 
@@ -19,7 +19,8 @@
       </template>
 
       <template v-else>
-        <div class="value" :class="{active: activeValue}" @click="onValueClick(value, $event)">"{{value}}"</div>
+        <div v-if="value==null" class="value">null</div>
+        <div v-else class="value" :class="{active: activeValue}" @click="onValueClick(value, $event)">"{{value}}"</div>
       </template>
 
     </div>
@@ -88,7 +89,7 @@ export default {
           return Object.keys(value).length < 1
         }
       }
-      return !!!value
+      return Boolean(value)
     },
     /**
      * check if the value passed as prop is an object (not an array)

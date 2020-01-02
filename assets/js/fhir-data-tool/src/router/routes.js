@@ -9,9 +9,11 @@ const routes = [
             { path: '/patient', name: 'patient', component: () => import('@/pages/Patient') },
             { path: '/medication-order', name: 'medication-order', component: () => import('@/pages/MedicationOrder') },
             { path: '/observation', name: 'observation', component: () => import('@/pages/Observation') },
+            { path: '/condition', name: 'cpndition', component: () => import('@/pages/Condition') },
 
             { path: '/help', name: 'help', component: () => import('@/pages/Help') },
             { path: '/fhir_metadata', name: 'fhir_metadata', component: () => import('@/pages/FhirMetadata') },
+            { path: '/project_info', name: 'project_info', component: () => import('@/pages/ProjectInfo') },
 
             { path: "*", name: 'not_found', component: () => import('@/pages/PageNotFound')  }
         ]

@@ -53,9 +53,7 @@ export default {
         const {source={}} = this.resource && this.resource.metadata || {}
         const bundle = new Bundle(source)
         // make sure every entry is of type MedicationOrder
-        const entries = bundle.entries.filter( entry => {
-          return entry instanceof MedicationOrder
-        })
+        const entries = bundle.getEntriesOfType(MedicationOrder)
         return entries
       } catch (error) {
         console.log(error)

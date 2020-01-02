@@ -13,6 +13,7 @@
 
 <script>
 import Vue from 'vue'
+import qs from 'qs'
 import ProgressBar from '@/components/ProgressBar'
 
 
@@ -52,10 +53,12 @@ export default {
   },
   methods: {
     loadFhirMetadata() {
-      return this.$store.dispatch('fhir_metadata/fetchFields')
+      return this.$store.dispatch('fhir_metadata/fetchMetadata')
     },
     loadProjectInfo() {
-      const project_id = 1
+      const {pid} = qs.parse(location.search, { ignoreQueryPrefix: true })
+      console.log(pid)
+      const project_id = pid || 1
       return this.$store.dispatch('project/fetchInfo', project_id)
     },
   }

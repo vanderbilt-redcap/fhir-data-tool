@@ -51,11 +51,22 @@ namespace REDCap\FhirDataTool\App\Controllers
             $this->printJSON($response, $status_code=200);
         }
 
+        /**
+         * get info about a project
+         *
+         * @return void
+         */
         public function getProjectInfo()
         {
             $project_id = $_GET['pid'];
             $project_info = $this->model->getProjectInfo($project_id);
-            $response = $project_info;
+            $datamart_active_revision = $this->model->getDatamartRevision($project_id);
+            $cdp_mapping = $this->model->getClinicalDataPullMapping($project_id);
+            $response = array(
+                'info' => $project_info,
+                'datamart_revision' => $datamart_active_revision,
+                'cdp_mapping' => $cdp_mapping,
+            );
             $this->printJSON($response, $status_code=200);
         }
 
@@ -138,7 +149,10 @@ namespace REDCap\FhirDataTool\App\Controllers
             $ddp = new \DynamicDataPull(0, 'FHIR');
             $source_fields = $ddp->getExternalSourceFields();
             $fields = $this->groupFields($source_fields);
-            $data = array('fields' => $fields);
+            $data = array(
+                'fields' => $fields,
+                'codes' => array_keys($source_fields),
+            );
             $this->printJSON($data, $status_code=200);
         }
 
