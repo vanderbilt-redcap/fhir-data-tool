@@ -1,28 +1,26 @@
 <template>
-  <div class="home-page">
-    <FhirForm class="fhir-form">
+  <div >
+    <FhirForm class="fhir-form"></FhirForm>
 
-    </FhirForm>
-
-    <div v-if="Object.entries(grouped_codings).length">
+    <div v-if="entries">
       <table class="table table-striped table-bordered">
         <thead>
           <th>#</th>
           <th>Description (from EHR, not from REDCap mapping)</th>
-          <th>Code</th>
+          <th>Status</th>
           <th>System</th>
-          <th>Value</th>
-          <th>Date/time of service</th>
+          <th>Code</th>
+          <th>Date/time</th>
         </thead>
         <!-- codings are grouped by condition??? -->
-        <tbody v-for="(group, index) in grouped_codings" :key="index">
-          <tr v-for="(coding, coding_index) in group" :key="coding_index">
-            <td :style="getGroupStyle(index)">{{index}}</td>
-            <td>{{coding.display}}</td>
-            <td>{{coding.code}}</td>
-            <td>{{coding.system}}</td>
-            <td>{{coding.value}}</td>
-            <td>{{coding.date}}</td>
+        <tbody v-for="(group, group_index) in groups" :key="group_index">
+          <tr v-for="(row, index) in group" :key="index">
+            <td >{{group_index}}</td>
+            <td>{{row.display}}</td>
+            <td>{{row.status}}</td>
+            <td>{{row.system}}</td>
+            <td>{{row.code}}</td>
+            <td>{{row.date}}</td>
           </tr>
         </tbody>
       </table>
@@ -33,9 +31,6 @@
 </template>
 
 <script>
-import Bundle from '@/libraries/FhirResource/Bundle'
-import Condition from '@/libraries/FhirResource/Condition'
-
 import FhirForm from '@/components/FhirForm'
 import ResourceContainer from '@/components/ResourceContainer'
 
@@ -47,22 +42,43 @@ export default {
     ResourceContainer,
   },
   computed: {
-    resource() {
-      const {resource={}} = this.$store.state.resource
-      return resource
-    },
     entries() {
       try {
-        const {source={}} = this.resource && this.resource.metadata || {}
-        const bundle = new Bundle(source)
-        // make sure every entry is of type MedicationOrder
-        const entries = bundle.getEntriesOfType(Observation)
+        const {conditions:entries=[]} = this.$store.state.resource
         return entries
       } catch (error) {
         console.log(error)
         return []  
       }
     },
+    groups() {
+      const entries = this.entries
+      const group = {}
+      entries.forEach((entry, index) => {
+        const {date, status, text, codings} = entry
+        if(codings.length==0) {
+          const row = {
+            date,
+            status,
+            display: text,
+          }
+          group[index] = [row]
+        }else {
+          group[index] = []
+          codings.forEach(coding => {
+            const row = {
+              date,
+              status,
+              display: coding.display || text,
+              system: coding.system,
+              code: coding.code
+            }
+            group[index].push(row)
+          })
+        }
+      })
+      return group
+    }
   },
   methods: {},
 }

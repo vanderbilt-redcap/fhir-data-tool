@@ -43,9 +43,6 @@
 </template>
 
 <script>
-import Bundle from '@/libraries/FhirResource/Bundle'
-import Observation from '@/libraries/FhirResource/Observation'
-
 import FhirForm from '@/components/FhirForm'
 import ResourceContainer from '@/components/ResourceContainer'
 import ObservationFields from'@/components/observation/ObservationFields'
@@ -65,10 +62,6 @@ export default {
     ObservationFields,
   },
   computed: {
-    resource() {
-      const {resource={}} = this.$store.state.resource
-      return resource
-    },
     /**
      * list of the mapped codes in REDCap
      */
@@ -102,10 +95,7 @@ export default {
     }, */
     entries() {
       try {
-        const {source={}} = this.resource && this.resource.metadata || {}
-        const bundle = new Bundle(source)
-        // make sure every entry is of type MedicationOrder
-        const entries = bundle.getEntriesOfType(Observation)
+        const {observations:entries=[]} = this.$store.state.resource
         return entries
       } catch (error) {
         console.log(error)

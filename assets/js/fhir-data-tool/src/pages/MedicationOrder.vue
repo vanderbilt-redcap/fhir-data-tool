@@ -29,9 +29,6 @@
 </template>
 
 <script>
-import Bundle from '@/libraries/FhirResource/Bundle'
-import MedicationOrder from'@/libraries/FhirResource/MedicationOrder'
-
 import FhirForm from '@/components/FhirForm'
 import ResourceContainer from '@/components/ResourceContainer'
 import MedicationOrderFields from'@/components/medication-order/MedicationOrderFields'
@@ -44,16 +41,10 @@ export default {
     MedicationOrderFields,
   },
   computed: {
-    resource() {
-      const {resource={}} = this.$store.state.resource
-      return resource
-    },
+
     entries() {
       try {
-        const {source={}} = this.resource && this.resource.metadata || {}
-        const bundle = new Bundle(source)
-        // make sure every entry is of type MedicationOrder
-        const entries = bundle.getEntriesOfType(MedicationOrder)
+        const {medication_orders:entries=[]} = this.$store.state.resource
         return entries
       } catch (error) {
         console.log(error)

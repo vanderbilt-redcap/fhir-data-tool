@@ -69,11 +69,6 @@ export default {
       const params = all_params[endpoint] || [] // get extra params for the current endpoint
       try {
         const resource = await this.$store.dispatch('resource/fetchResource', {endpoint, mrn, params})
-        this.$store.dispatch('resource/setResource', {resource})
-        // set the resources
-        const resources = [resource]
-        // this.$store.dispatch('resource/setResource',{resource})
-        this.$store.dispatch('resource/setResources',{resources})
       } catch (error) {
         console.error(error)
       }

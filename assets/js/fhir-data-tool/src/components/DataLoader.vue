@@ -57,7 +57,6 @@ export default {
     },
     loadProjectInfo() {
       const {pid} = qs.parse(location.search, { ignoreQueryPrefix: true })
-      console.log(pid)
       const project_id = pid || 1
       return this.$store.dispatch('project/fetchInfo', project_id)
     },
@@ -97,6 +96,7 @@ export default {
     justify-content: center;
     padding: 20px;
     width: 50%;
+    max-width: 300px;
     height: auto;
     position: relative;
   }

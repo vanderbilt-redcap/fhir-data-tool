@@ -1,38 +1,90 @@
 import Vue from 'vue'
+import Bundle from '../../libraries/FhirResource/Bundle'
+import Patient from '../../libraries/FhirResource/Patient'
 
 const initialState = {
-    observations: [],
-    conditions: [],
-    medication_orders: [],
-    resource: {},
-    resources: [],
+    resource: {}, // resource as fetched from endpoint
+    observations: [], //entries
+    conditions: [], //entries
+    medication_orders: [], //entries
+    patient: {}, // patient entry
 }
 
 const module = {
     namespaced: true,
     state: {...initialState},
     mutations: {
-        SET_RESOURCE: function(state, {endpoint, resource}) {
+        SET_RESOURCE: function(state, resource) {
             state.resource = resource
         },
-        SET_RESOURCES: function(state, {resources}) {
-            state.resources = resources
+        SET_OBSERVATIONS: function(state, entries) {
+            state.observations = entries
+        },
+        SET_CONDITIONS: function(state, entries) {
+            state.conditions = entries
+        },
+        SET_MEDICATION_ORDERS: function(state, entries) {
+            state.medication_orders = entries
+        },
+        SET_PATIENT: function(state, entry) {
+            state.patient = entry
         },
     },
     actions: {
+        reset(context) {
+            context.commit('SET_RESOURCE', initialState.resource)
+            context.commit('SET_OBSERVATIONS', initialState.observations)
+            context.commit('SET_CONDITIONS', initialState.conditions)
+            context.commit('SET_MEDICATION_ORDERS', initialState.medication_orders)
+            context.commit('SET_PATIENT', initialState.patient)
+        },
         async fetchResource(context, {endpoint, mrn, params}) {
-            // set the list to an empty array before fetching remote data
-            context.commit('SET_RESOURCE',{endpoint, resurce:{}})
+            // reset before fecthing
+            context.dispatch('reset')
             const response = await Vue.$API.getFhirResource(endpoint, mrn, params)
             const resource = response.data || {}
+            context.commit('SET_RESOURCE', resource)
+            context.dispatch('processResource', resource)
             return resource
         },
-        setResource(context, {endpoint, resource}) {
-            context.commit('SET_RESOURCE',{endpoint, resource})
-        },
-        setResources(context, {resources}) {
-            if(!Array.isArray(resources)) resources = [resources] // convert to array
-            context.commit('SET_RESOURCES',{resources})
+        processResource(context, resource) {
+            const {source={}} = resource.metadata || {}
+            const observations = []
+            const conditions = []
+            const medication_orders = []
+            const {resourceType} = source
+            switch (resourceType) {
+                case 'Bundle':
+                    const bundle = new Bundle(source)
+                    const {entries} = bundle
+                    entries.forEach(entry => {
+                        const constructor = entry.constructor.name
+                        switch (constructor) {
+                            case 'MedicationOrder':
+                                medication_orders.push(entry)
+                                break;
+                            case 'Condition':
+                                conditions.push(entry)
+                                break;
+                            case 'Observation':
+                                observations.push(entry)
+                                break;
+                            default:
+                                break;
+                        }
+                    })
+                    context.commit('SET_OBSERVATIONS', observations)
+                    context.commit('SET_CONDITIONS', conditions)
+                    context.commit('SET_MEDICATION_ORDERS', medication_orders)
+                    break;
+                case 'Patient':
+                    const patient = new Patient(source)
+                    context.commit('SET_PATIENT', patient)
+                    break;
+
+                default:
+                    break;
+            }
         }
     },
     getters: {

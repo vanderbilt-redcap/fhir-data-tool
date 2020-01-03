@@ -1,5 +1,6 @@
 import Resource from './Resource'
 import Observation from './Observation'
+import Condition from './Condition'
 import MedicationOrder from './MedicationOrder'
 
 class Bundle extends  Resource {
@@ -24,7 +25,13 @@ class Bundle extends  Resource {
                     const medication_order = new MedicationOrder(resource)
                     results.push(medication_order)
                     break;
+                case 'Condition':
+                    const condition = new Condition(resource)
+                    results.push(condition)
+                    break;
                 default:
+                    const generic = new Resource(resource)
+                    results.push(generic)
                     break;
             }
             
@@ -37,9 +44,9 @@ class Bundle extends  Resource {
      * 
      * @param {class} type_class 
      */
-    getEntriesOfType(type_class) {
+    getEntriesOfType(class_name) {
         const entries = this.entries.filter( entry => {
-            return entry instanceof type_class
+            return entry.constructor.name == class_name
         })
         return entries
     }
