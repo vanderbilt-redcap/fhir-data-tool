@@ -13,32 +13,29 @@
           <th>System</th>
           <th>Value</th>
           <th>Date/time of service</th>
-          <th>Mapped in REDCap</th>
-          <th>Mapped in project</th>
+          <th>Codes to export</th>
         </thead>
         <!-- codings are grouped by observation -->
         <tbody v-for="(group, index) in grouped_codings" :key="index">
           <tr v-for="(coding, coding_index) in group" :key="coding_index">
             <td :style="getGroupStyle(index)">{{index}}</td>
             <td>{{coding.display}}</td>
-            <td>{{coding.code}}</td>
+            <td>
+              <span>{{coding.code}}</span>
+              <div v-if="!isMappedInREDCap(coding)">
+                <span :style="{color:'red'}">(not available in REDCap)</span>
+                <button class="btn btn-sm btn-info">
+                  Notify admin <i class="fas fa-bell"></i>
+                </button>
+              </div>
+            </td>
             <td>{{coding.system}}</td>
             <td>{{coding.value}}</td>
             <td>{{coding.date}}</td>
-            <td class="centered redcap_mapped" :class="{is_mapped: isMappedInREDCap(coding)}">
-              <i v-if="isMappedInREDCap(coding)" class="fas fa-check"></i>
-              <i v-else class="fas fa-ban"></i>
-            </td>
             <td class="centered project_mapped" :class="{is_mapped: isMappedInProject(coding)}">
-              <template v-if="isMappedInProject(coding)">
-                <i class="fas fa-check"></i>
-                  <div><button class="btn btn-sm btn-warning" @click="removeMapping(coding.code)">remove mapping</button></div>
+              <template v-if="!isMappedInProject(coding)">
+                <input v-if="coding.code" type="checkbox" name="" id="" v-model="codes" :value=coding.code>
               </template>
-              <template v-else>
-                <i class="fas fa-ban"></i>
-                <div><button class="btn btn-sm btn-info" @click="addMapping(coding.code)">add mapping</button></div>
-              </template>
-              <input v-if="coding.code" type="checkbox" name="" id="" v-model="codes" :value=coding.code>
             </td>
           </tr>
         </tbody>
@@ -56,14 +53,15 @@ import ResourceContainer from '@/components/ResourceContainer'
 import ObservationFields from'@/components/observation/ObservationFields'
 // temp for development
 import observation_json from '@/assets/observation'
-
+// blacklisted codes
+import {codes_blacklist} from '@/variables'
 
 
 export default {
   name: 'ObservationPage',
   data: () => ({
     show_groups: false,
-    codes: []
+    internal_codes: null, // internal state for the mapped codes
   }),
   components: {
     FhirForm,
@@ -71,6 +69,24 @@ export default {
     ObservationFields,
   },
   computed: {
+    mapped_codes() {
+      const codes = this.$store.getters['project/mappedCodes']
+      return codes
+    },
+    codes: {
+      /**
+       * get the codes from the internal state (data) if available
+       * otherwise get it from the state
+       */
+      get(){
+        if(this.internal_codes) return this.internal_codes
+        const codes = this.$store.getters['project/mappedCodes']
+        return codes
+      },
+      set(codes){
+        this.internal_codes = codes
+      },
+    },
     /**
      * list of the mapped codes in REDCap
      */
@@ -78,30 +94,6 @@ export default {
       const {codes} = this.$store.state.fhir_metadata
       return codes
     },
-    /**
-     * list of the mapped codes in REDCap
-     */
-    datamart_revision() {
-      const {datamart_revision} = this.$store.state.project
-      return datamart_revision
-    },
-    cdp_mapping() {
-      const {cdp_mapping} = this.$store.state.project
-      return cdp_mapping
-    },
-    /**
-     * get the list of "Vital Signs" fields mapped in REDCap
-     */
-    /* fhir_vital_sign_fields() {
-      const {fields:all_fields, codes} = this.$store.state.fhir_metadata
-      const vital_sign_metadata = all_fields['Vital Signs']
-      // extract the fields from the vital signs group
-      const fields = Object.entries(vital_sign_metadata).reduce((fields, [key, value])=> {
-        if(Array.isArray(value)) return [...fields, ...value]
-        else return [...fields, value]
-      }, [])
-      return fields
-    }, */
     entries() {
       try {
         const {observations:entries=[]} = this.$store.state.resource
@@ -115,24 +107,13 @@ export default {
       const entries = this.entries
       const groups = {}
       entries.forEach((entry, index) => {
-        groups[index] = [...entry.codings]
+        const codings = entry.codings.filter(coding => {
+          return codes_blacklist.indexOf(coding.code)<0
+        })
+        groups[index] = [...codings]
       })
       return groups
     },
-  },
-  watch: {
-    entries(list) {
-      console.log(list)
-      const codes = []
-      list.forEach(entry => {
-        const {codings} = entry
-        codings.forEach(coding => {
-          const {code} = coding
-          if(code) codes.push(code)
-        })
-      })
-      this.codes = codes
-    }
   },
   methods: {
     toggleGroups() {
@@ -149,26 +130,15 @@ export default {
       return style
     },
     isMappedInREDCap(coding) {
+      if(!coding.code) return true
       const codes = this.fhir_metadata_codes
       const mapped = codes.some(code => code===coding.code)
       return mapped
     },
     isMappedInProject(coding) {
-      const revision = this.datamart_revision
-      const cdp_mapping = this.cdp_mapping
-
-      if(revision) return this.isMappedInDatamartRevision(coding, revision)
-      else if(cdp_mapping) return this.isMappedInCdpMapping(coding, cdp_mapping)
-      else return false
-    },
-    isMappedInDatamartRevision(coding, revision) {
-      const {data: {fields}} = revision
-      const mapped = fields.some(code => code===coding.code)
-      return mapped
-    },
-    isMappedInCdpMapping(coding, mapping) {
-      const mapped = mapping.some(item => item.external_source_field_name===coding.code)
-      return mapped
+      if(!coding.code) return false
+      const mapped_codes = this.mapped_codes
+      return mapped_codes.indexOf(coding.code) >=0
     },
     addMapping(code) {
       try {
@@ -194,11 +164,11 @@ export default {
 <style scoped>
 .project_mapped,
 .redcap_mapped {
-  color: red;
+  background: rgba(100,0,0,.3);
 }
 .project_mapped.is_mapped,
 .redcap_mapped.is_mapped {
-  color: green;
+  background: rgba(0,100,0,.3);
 }
 td.centered {
   vertical-align: middle;

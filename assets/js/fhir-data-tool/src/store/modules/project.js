@@ -1,9 +1,10 @@
 import Vue from 'vue'
+import {union, get} from 'lodash'
 
 const initialState = {
     info: {},
     datamart_revision: {},
-    cdp_mapping: {},
+    cdp_mapping: [],
 }
 
 const module = {
@@ -16,7 +17,7 @@ const module = {
         SET_DATAMART_REVISION: function(state, payload) {
             state.datamart_revision = payload
         },
-        SETCDP_MAPPING: function(state, payload) {
+        SET_CDP_MAPPING: function(state, payload) {
             state.cdp_mapping = payload
         },
     },
@@ -25,9 +26,21 @@ const module = {
             const response = await Vue.$API.getProjectInfo(project_id)
             const {data: {info, datamart_revision, cdp_mapping}} = response
             context.commit('SET_INFO',info)
-            context.commit('SET_DATAMART_REVISION',datamart_revision)
-            context.commit('SETCDP_MAPPING',cdp_mapping)
+            context.commit('SET_DATAMART_REVISION', datamart_revision)
+            context.commit('SET_CDP_MAPPING', cdp_mapping)
         },
+    },
+    getters: {
+        mappedCodes: (state) => {
+            const datamart_fields = get(state, 'datamart_revision.data.fields', [])
+            const cdp_mapping = get(state, 'cdp_mapping', [])
+
+            // extract the codes from the CDP mapping
+            const cdp_fields = cdp_mapping.map(mapping => mapping.external_source_field_name) || []
+            // merge the datamart fields with the cdp mapping (if project is both CPD and datamart)
+            const codes = union(datamart_fields, cdp_fields)
+            return codes
+        }
     }
 }
 
