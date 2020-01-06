@@ -24,6 +24,8 @@ $routes = [
     ['GET', $base_url.'/index', 'REDCap\FhirDataTool\App\Controllers\FhirDataToolController/index'],
     ['GET', $base_url.'/fhir_metadata', 'REDCap\FhirDataTool\App\Controllers\FhirDataToolController/getFhirMetadata'],
     ['GET', $base_url.'/project_info', 'REDCap\FhirDataTool\App\Controllers\FhirDataToolController/getProjectInfo'],
+    ['POST', $base_url.'/add_mapping', 'REDCap\FhirDataTool\App\Controllers\FhirDataToolController/addMapping'],
+    ['POST', $base_url.'/remove_mapping', 'REDCap\FhirDataTool\App\Controllers\FhirDataToolController/removeMapping'],
 ];
 
 // create a BaseController to manage common routes or errors

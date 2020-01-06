@@ -3,7 +3,7 @@
     <FhirForm class="fhir-form">
       <ObservationFields />
     </FhirForm>
-
+    {{codes}}
     <div v-if="Object.entries(grouped_codings).length">
       <table class="table table-striped table-bordered">
         <thead>
@@ -30,8 +30,15 @@
               <i v-else class="fas fa-ban"></i>
             </td>
             <td class="centered project_mapped" :class="{is_mapped: isMappedInProject(coding)}">
-              <i v-if="isMappedInProject(coding)" class="fas fa-check"></i>
-              <i v-else class="fas fa-ban"></i>
+              <template v-if="isMappedInProject(coding)">
+                <i class="fas fa-check"></i>
+                  <div><button class="btn btn-sm btn-warning" @click="removeMapping(coding.code)">remove mapping</button></div>
+              </template>
+              <template v-else>
+                <i class="fas fa-ban"></i>
+                <div><button class="btn btn-sm btn-info" @click="addMapping(coding.code)">add mapping</button></div>
+              </template>
+              <input v-if="coding.code" type="checkbox" name="" id="" v-model="codes" :value=coding.code>
             </td>
           </tr>
         </tbody>
@@ -43,6 +50,7 @@
 </template>
 
 <script>
+
 import FhirForm from '@/components/FhirForm'
 import ResourceContainer from '@/components/ResourceContainer'
 import ObservationFields from'@/components/observation/ObservationFields'
@@ -55,6 +63,7 @@ export default {
   name: 'ObservationPage',
   data: () => ({
     show_groups: false,
+    codes: []
   }),
   components: {
     FhirForm,
@@ -111,6 +120,20 @@ export default {
       return groups
     },
   },
+  watch: {
+    entries(list) {
+      console.log(list)
+      const codes = []
+      list.forEach(entry => {
+        const {codings} = entry
+        codings.forEach(coding => {
+          const {code} = coding
+          if(code) codes.push(code)
+        })
+      })
+      this.codes = codes
+    }
+  },
   methods: {
     toggleGroups() {
       this.show_groups = !this.show_groups
@@ -147,7 +170,22 @@ export default {
       const mapped = mapping.some(item => item.external_source_field_name===coding.code)
       return mapped
     },
-
+    addMapping(code) {
+      try {
+        const {project_id} = this.$store.state.project.info
+        this.$API.addMapping({code,project_id})
+      } catch (error) {
+        console.log(error, 'cannot determine project ID')
+      }
+    },
+    removeMapping(code) {
+      try {
+        const {project_id} = this.$store.state.project.info
+        this.$API.removeMapping({code,project_id})
+      } catch (error) {
+        console.log(error, 'cannot determine project ID')
+      }
+    },
   },
 }
 </script>

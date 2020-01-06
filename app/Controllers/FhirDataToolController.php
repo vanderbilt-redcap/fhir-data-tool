@@ -156,6 +156,28 @@ namespace REDCap\FhirDataTool\App\Controllers
             $this->printJSON($data, $status_code=200);
         }
 
+        public function addMapping()
+        {
+            $code = $_POST['code'];
+            $project_id = $_POST['project_id'];
+            $response = array(
+                'code' => $code,
+                'project_id' => $project_id,
+            );
+            $this->printJSON($response, $status_code=200);
+        }
+
+        public function removeMapping()
+        {
+            $code = $_POST['code'];
+            $project_id = $_POST['project_id'];
+            $response = array(
+                'code' => $code,
+                'project_id' => $project_id,
+            );
+            $this->printJSON($response, $status_code=200);
+        }
+
         public function index()
         {
             extract($GLOBALS);

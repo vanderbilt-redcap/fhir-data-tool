@@ -31,6 +31,13 @@ class API {
         })
     }
 
+
+    /**
+     * get data from a FHIR endpoint
+     * @param {string} endpoint 
+     * @param {string} mrn 
+     * @param {object} params additional params to use in the request
+     */
     getFhirResource(endpoint, mrn, params)
     {
         // https://redcap.test/API_DEV/?pid=104&route=FhirDataToolController:fhirTest&userid=delacqf"
@@ -54,6 +61,10 @@ class API {
         })
     }
 
+    /**
+     * get the active tokens of a user
+     * @param {username} param0 
+     */
     getTokens({user})
     {
         const route = 'FhirDataToolController:getTokens'
@@ -70,6 +81,11 @@ class API {
         })
     }
 
+    /**
+     * get info about a project
+     * 
+     * @param {number} project_id 
+     */
     getProjectInfo(project_id) {
         
         const request_params = {
@@ -81,16 +97,39 @@ class API {
         })
     }
 
+    /**
+     * get the mapping data for the FHIR resources
+     */
     getFhirMetadata() {
         const route = 'FhirDataToolController:getFhirMetadata'
         // get parameters from the current URL
         const query_params = qs.parse(location.search, { ignoreQueryPrefix: true })
-        const request_params = {route,}
+        const request_params = {route}
 
         const url = '/fhir_metadata'
         return this.api_client.get(url, {
             params: request_params,
         })
+    }
+
+    addMapping({code,project_id}) {
+        console.log('addMapping', {code, project_id})
+        const request_params = qs.stringify({code, project_id})
+        const url = '/add_mapping'
+        return this.api_client.post(url, request_params)
+    }
+    removeMapping({code,project_id}) {
+        console.log('removeMapping', {code, project_id})
+        const request_params = qs.stringify({code, project_id})
+        const url = '/remove_mapping'
+        return this.api_client.post(url, request_params)
+    }
+    
+    updateMapping({codes=[],project_id}) {
+        console.log('updateMapping', {codes, project_id})
+        const request_params = qs.stringify({codes, project_id})
+        const url = '/update_mapping'
+        return this.api_client.post(url, request_params)
     }
 }
 export default API
