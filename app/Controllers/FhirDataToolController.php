@@ -11,22 +11,9 @@ namespace REDCap\FhirDataTool\App\Controllers
      * @method string fetchFhirResource()
      * @method string getTokens()
      */
-    class FhirDataToolController extends BaseController {
+    class FhirDataToolController extends BaseController
+    {
 
-        /**
-         * list of allowed routes with request types
-         *
-         * @var array
-         */
-        protected $routes = array(
-            'index' => array('GET'), // main page
-            'fhirTest' => array('GET'), // test
-            'fetchFhirResource' => array('GET'), // fetchFhirResource
-            'fetchFhirPatientResource' => array('GET'), // fetchFhirPatientResource
-            'getTokens' => array('GET'), // fetchFhirPatientResource
-        );
-
-        
         /**
          * instance of the model
          *
@@ -117,28 +104,6 @@ namespace REDCap\FhirDataTool\App\Controllers
             $this->printJSON($response, $status_code=200);
         }
 
-        private function groupFields($fields)
-        {
-            $groups = array();
-            foreach ($fields as $field) {
-                $category = $field['category'];
-                if(empty($category)) continue; //category must be set
-                // make sure category is an array
-                if(!is_array($groups[$category])) $groups[$category] = array();
-                // priority to sub categories
-                if($sub_category = $field['subcategory'])
-                {
-                    // make sure sub_category is an array
-                    if(!is_array($groups[$category][$sub_category])) $groups[$category][$sub_category] = array();
-                    $groups[$category][$sub_category][] = $field;
-                }else
-                {
-                    $groups[$category][] = $field;
-                }
-            }
-            return $groups;
-        }
-
         /**
          * get 
          *
@@ -148,7 +113,7 @@ namespace REDCap\FhirDataTool\App\Controllers
         {
             $ddp = new \DynamicDataPull(0, 'FHIR');
             $source_fields = $ddp->getExternalSourceFields();
-            $fields = $this->groupFields($source_fields);
+            $fields = $this->model->getGroupedSourceFields($source_fields);
             $data = array(
                 'fields' => $fields,
                 'codes' => array_keys($source_fields),
@@ -156,25 +121,34 @@ namespace REDCap\FhirDataTool\App\Controllers
             $this->printJSON($data, $status_code=200);
         }
 
-        public function addMapping()
+        /**
+         * send a notification to an admin
+         * when a user wants to add a code
+         * to those available in REDCap
+         * admin will add the codes in Resources/misc/loinc_labs_additions.csv
+         * @return void
+         */
+        public function notifyAdmin()
         {
-            $code = $_POST['code'];
-            $project_id = $_POST['project_id'];
-            $response = array(
-                'code' => $code,
-                'project_id' => $project_id,
-            );
-            $this->printJSON($response, $status_code=200);
-        }
+            global $userid, $ui_id, $project_id, $project;
 
-        public function removeMapping()
-        {
             $code = $_POST['code'];
-            $project_id = $_POST['project_id'];
+
             $response = array(
                 'code' => $code,
+                'userid' => $userid,
+                'ui_id' => $ui_id,
                 'project_id' => $project_id,
+                'project' => $project,
             );
+            // $ui_id, $request_to, $todo_type, $action_url, $project_id=null, $comment=null
+            /* $request_id = \ToDoList::insertAction(
+                $ui_id,
+                $request_to='$projectInfo->project_contact_email',
+                $todo_type='FHIR code addition request',
+                $action_url='', // request_id is automatically appended to end of action URL after insert to keep as a reference during admin processing
+                $project_id
+            ); */
             $this->printJSON($response, $status_code=200);
         }
 

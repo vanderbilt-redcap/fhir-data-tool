@@ -11,4 +11,11 @@ const router = new VueRouter({
     routes
 })
 
+import store from '@/store'
+router.beforeEach((to, from, next) => {
+    // reset the resource store whenever the route changes
+    store.dispatch('resource/reset')
+    next()
+})
+
 export default  router

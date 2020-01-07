@@ -297,6 +297,34 @@ namespace REDCap\FhirDataTool\App\Models
         }
 
         /**
+         * group the FHIR source fields by category and subcategory
+         *
+         * @param array $fields external source fields
+         * @return array
+         */
+        public function getGroupedSourceFields($fields)
+        {
+            $groups = array();
+            foreach ($fields as $field) {
+                $category = $field['category'];
+                if(empty($category)) continue; //category must be set
+                // make sure category is an array
+                if(!is_array($groups[$category])) $groups[$category] = array();
+                // priority to sub categories
+                if($sub_category = $field['subcategory'])
+                {
+                    // make sure sub_category is an array
+                    if(!is_array($groups[$category][$sub_category])) $groups[$category][$sub_category] = array();
+                    $groups[$category][$sub_category][] = $field;
+                }else
+                {
+                    $groups[$category][] = $field;
+                }
+            }
+            return $groups;
+        }
+
+        /**
          * get the data from a binary file
          *
          * @param string $url

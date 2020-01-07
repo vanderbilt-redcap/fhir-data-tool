@@ -10,8 +10,15 @@
       <slot></slot>
       
       <div class="buttons my-2">
-          <button class="btn btn-primary" type="submit" :disabled="!canSubmit" >Submit</button>
-          <button class="btn btn-info" type="button" @click="onCleanClick">clean results</button>
+          <button class="btn btn-primary" type="submit" :disabled="!canSubmit || loading">
+           <span class="mr-2">Fetch</span>
+           <i v-if="loading" class="fas fa-spinner fa-spin"></i>
+           <i v-else class="fas fa-cloud-download-alt"></i>
+          </button>
+          <button class="btn btn-info" type="button" @click="onCleanClick">
+            <span class="mr-2">clean results</span>
+            <i class="fas fa-redo"></i>
+          </button>
       </div>
     </form>
 
@@ -23,7 +30,9 @@
 export default {
   name: 'FhirForm',
   components: {  },
-  data: () => ({ }),
+  data: () => ({
+    loading: false,
+  }),
   computed: {
     mrn: {
       get() {
@@ -68,17 +77,17 @@ export default {
       const all_params = this.$store.state.endpoint.params // global params object. contains params for every endpoint
       const params = all_params[endpoint] || [] // get extra params for the current endpoint
       try {
+        this.loading = true
         const resource = await this.$store.dispatch('resource/fetchResource', {endpoint, mrn, params})
       } catch (error) {
         console.error(error)
+      }finally {
+        this.loading = false
       }
     },
     onCleanClick()
     {
-      const resources = []
-      const resource = {}
-      this.$store.dispatch('resource/setResource',{resource})
-      this.$store.dispatch('resource/setResources',{resources})
+      this.$store.dispatch('resource/reset')
     }
   }
 }

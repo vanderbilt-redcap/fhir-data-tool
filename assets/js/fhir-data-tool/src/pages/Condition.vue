@@ -2,10 +2,9 @@
   <div >
     <FhirForm class="fhir-form"></FhirForm>
 
-    <div v-if="entries">
+    <div v-if="rows.length>0">
       <table class="table table-striped table-bordered">
         <thead>
-          <th>#</th>
           <th>Description (from EHR, not from REDCap mapping)</th>
           <th>Status</th>
           <th>System</th>
@@ -13,9 +12,8 @@
           <th>Date/time</th>
         </thead>
         <!-- codings are grouped by condition??? -->
-        <tbody v-for="(group, group_index) in groups" :key="group_index">
-          <tr v-for="(row, index) in group" :key="index">
-            <td >{{group_index}}</td>
+        <tbody >
+          <tr v-for="(row, index) in rows" :key="index">
             <td>{{row.display}}</td>
             <td>{{row.status}}</td>
             <td>{{row.system}}</td>
@@ -51,10 +49,9 @@ export default {
         return []  
       }
     },
-    groups() {
-      const entries = this.entries
-      const group = {}
-      entries.forEach((entry, index) => {
+    rows() {
+      const rows = []
+      this.entries.forEach(entry => {
         const {date, status, text, codings} = entry
         if(codings.length==0) {
           const row = {
@@ -62,9 +59,8 @@ export default {
             status,
             display: text,
           }
-          group[index] = [row]
+          rows.push(row)
         }else {
-          group[index] = []
           codings.forEach(coding => {
             const row = {
               date,
@@ -73,12 +69,12 @@ export default {
               system: coding.system,
               code: coding.code
             }
-            group[index].push(row)
+            rows.push(row)
           })
         }
       })
-      return group
-    }
+      return rows
+    },
   },
   methods: {},
 }

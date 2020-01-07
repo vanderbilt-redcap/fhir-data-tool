@@ -15,11 +15,10 @@ Vue.use(API)
 
 import App from '@/App.vue'
 import DataLoader from '@/components/DataLoader'
-import ProgressBar from '@/components/ProgressBar'
 
 export default {
   name: 'app',
-  components: {DataLoader,ProgressBar,},
+  components: {DataLoader},
   store,
   router,
 }

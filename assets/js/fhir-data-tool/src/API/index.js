@@ -112,23 +112,10 @@ class API {
         })
     }
 
-    addMapping({code,project_id}) {
-        console.log('addMapping', {code, project_id})
-        const request_params = qs.stringify({code, project_id})
-        const url = '/add_mapping'
-        return this.api_client.post(url, request_params)
-    }
-    removeMapping({code,project_id}) {
-        console.log('removeMapping', {code, project_id})
-        const request_params = qs.stringify({code, project_id})
-        const url = '/remove_mapping'
-        return this.api_client.post(url, request_params)
-    }
-    
-    updateMapping({codes=[],project_id}) {
-        console.log('updateMapping', {codes, project_id})
-        const request_params = qs.stringify({codes, project_id})
-        const url = '/update_mapping'
+    sendNotification({code}) {
+        console.log('notify_admin', {code})
+        const request_params = qs.stringify({code})
+        const url = '/notify_admin'
         return this.api_client.post(url, request_params)
     }
 }

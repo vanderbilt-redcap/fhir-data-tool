@@ -34,6 +34,7 @@ export default {
     promises.push(this.loadProjectInfo())
     this.total = promises.length
     this.progress = 0
+    this.$API.getTokens({user:'asdas'})
 
     promises.forEach( async (promise, index) => {
       try {
