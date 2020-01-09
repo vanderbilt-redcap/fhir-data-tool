@@ -7,27 +7,43 @@
     <div v-if="filtered_codings.length">
 
       <section>
-        <p>The column <strong>"code"</strong> will show a button if a code is not available in REDCap; clicking the button the admin will be notified that the code must be added.</p>
-        <p>You can select codes that are not mapped in your project and export them using the checkboxes in the last column</p>
+        <p>When a code is not available in REDCap and "add code" request can be sent to the admin for review.</p>
+        <p>Codes that are not mapped in your project can be exported and used as a reference in the mapping process.</p>
       </section>
-
+      {{export_codings}}
+{{export_codes}}
       <table class="table table-striped table-bordered">
         <thead>
           <!-- <th><button type="button" class="btn" @click="toggleGroups">Group</button></th> -->
           <th>Description (from EHR, not from REDCap mapping)</th>
           <th>
-              <button class="btn btn-sm"
-                @click="hide_blacklisted=!hide_blacklisted"
-                :title="(hide_blacklisted ? 'show' : 'hide') + ' hidden codes'">
-                <span class="mr-2">Code</span>
-                <i v-if="hide_blacklisted" class="fa fa-eye-slash"></i>
-                <i v-else class="fas fa-eye"></i>
-              </button>
+            <button class="btn btn-sm"
+              @click="hide_blacklisted=!hide_blacklisted"
+              :title="(hide_blacklisted ? 'show' : 'hide') + ' hidden codes'">
+              <span class="mr-2">Code</span>
+              <i v-if="hide_blacklisted" class="fa fa-eye-slash"></i>
+              <i v-else class="fas fa-eye"></i>
+            </button>
+            <div v-show="exportable.length>0">
+              <div class="btn-group" role="group">
+                <button
+                  type="button" 
+                  class="btn btn-sm btn-info"
+                  @click="toggleExportableSelection"
+                ><span>{{(exportable.length===export_codes.length) ? `deselect all` : `select all`}} <i class="fas fa-check-square"></i></span></button>
+                <button
+                  type="button"
+                  :disabled="export_codes.length<1"
+                  class="btn btn-sm btn-primary"
+                  @click="exportCodes">
+                  <span>Export <i class="fas fa-download"></i></span>
+                </button>
+              </div>
+            </div>
           </th>
           <th>System</th>
           <th>Value</th>
           <th>Date/time of service</th>
-          <th><button :disabled="test_codes.length<1" class="btn btn-primary">Export selected codes</button></th>
         </thead>
         <!-- codings are grouped by observation -->
         <tbody >
@@ -35,26 +51,31 @@
             <!-- <td :style="getGroupStyle(index)">{{index}}</td> -->
             <td>{{coding.display}}</td>
             <td>
-              <span>{{coding.code}}</span>
-              <div v-if="!isMappedInREDCap(coding.code)">
-                <span :style="{color:'red'}"><small>not available in REDCap</small></span>
+              <div><span>{{coding.code}}</span></div>
+              <section v-if="isBlacklisted(coding.code)">
+                <div>
+                  <small><em>(this code is not used in REDCap: {{isBlacklisted(coding.code)}})</em></small>
+                </div>
+              </section>
+              <section v-if="!isAvailableInREDCap(coding.code)">
+                <div>
+                  <small :style="{color:'red'}">(not available in REDCap)</small>
+                </div>
                 <button class="btn btn-sm btn-info" @click="sendNotification(coding.code)">
-                  Notify admin <i class="fas fa-bell"></i>
+                  request <i class="fas fa-bell"></i>
                 </button>
-              </div>
+              </section>
+              <section v-if="isExportable(coding.code)">
+                <div>
+                  <small><em>(not mapped in your project)</em></small>
+                </div>
+                <label :for="`code_checkbox_${coding_index}`" class="mr-2">Select</label>
+                <input type="checkbox" name="" :id="`code_checkbox_${coding_index}`" v-model="export_codes" :value="coding.code">
+              </section>
             </td>
             <td>{{coding.system}}</td>
             <td>{{coding.value}}</td>
             <td>{{coding.date}}</td>
-            <td class="centered project_mapped" :class="{is_mapped: isMappedInProject(coding.code)}">
-              <template v-if="coding.code && !isMappedInProject(coding.code)">
-                <div>
-                  <small><em>not mapped in your project</em></small>
-                </div>
-                <label :for="`code_checkbox_${coding_index}`" class="mr-2">Export</label>
-                <input type="checkbox" name="" :id="`code_checkbox_${coding_index}`" v-model="test_codes" :value=coding.code>
-              </template>
-            </td>
           </tr>
         </tbody>
       </table>
@@ -73,13 +94,15 @@ import observation_json from '@/assets/observation'
 // blacklisted codes
 import {codes_blacklist} from '@/variables'
 
+import {download} from '@/libraries'
+
 
 export default {
   name: 'ObservationPage',
   data: () => ({
     hide_blacklisted: true,
     show_groups: false,
-    test_codes: [],
+    export_codes: [],
     internal_codes: null, // internal state for the mapped codes
   }),
   components: {
@@ -88,23 +111,20 @@ export default {
     ObservationFields,
   },
   computed: {
+    /**
+     * get a list of the codings based on the selected codes
+     */
+    export_codings() {
+      const codings = []
+      this.filtered_codings.forEach(coding => {
+        if(this.export_codes.indexOf(coding.code)>=0)
+          codings.push(coding)
+      })
+      return codings
+    },
     mapped_codes() {
       const codes = this.$store.getters['project/mappedCodes']
       return codes
-    },
-    codes: {
-      /**
-       * get the codes from the internal state (data) if available
-       * otherwise get it from the state
-       */
-      get(){
-        if(this.internal_codes) return this.internal_codes
-        const codes = this.$store.getters['project/mappedCodes']
-        return codes
-      },
-      set(codes){
-        this.internal_codes = codes
-      },
     },
     /**
      * list of the mapped codes in REDCap
@@ -113,6 +133,9 @@ export default {
       const {codes} = this.$store.state.fhir_metadata
       return codes
     },
+    /**
+     * get the entries
+     */
     entries() {
       try {
         const {observations:entries=[]} = this.$store.state.resource
@@ -122,6 +145,9 @@ export default {
         return []  
       }
     },
+    /**
+     * extract codings from entries
+     */
     codings() {
       const entries = this.entries
       const codings = this.entries.reduce((all, entry) => {
@@ -129,53 +155,83 @@ export default {
       }, [])
       return codings
     },
+    /**
+     * apply filters to codings (blacklist...)
+     */
     filtered_codings() {
       const codings = this.codings
-      if(!this.hide_blacklisted) return codings
-      return codings.filter(coding => codes_blacklist.indexOf(coding.code)<0 )
+      if(this.hide_blacklisted) {
+        return codings.filter(coding => !this.isBlacklisted(coding.code) )
+      }
+      return codings
     },
-    grouped_codings() {
-      const entries = this.entries
-      const groups = {}
-      entries.forEach((entry, index) => {
-        const codings = entry.codings.filter(coding => {
-          return codes_blacklist.indexOf(coding.code)<0
-        })
-        if(codings.length>0) {
-          groups[index] = [...codings]
-        }
+    /**
+     * get a list of codes that could be exported
+     */
+    exportable() {
+      const codings = this.filtered_codings
+      const exportable = []
+      codings.forEach(coding => {
+        const {code=''} = coding
+        if(!this.isExportable(code)) return
+        if(exportable.indexOf(code) >=0) return
+        exportable.push(code)
       })
-      return groups
-    },
+      return exportable
+    }
   },
   methods: {
-    toggleGroups() {
-      this.show_groups = !this.show_groups
-    },
-    getGroupStyle(index) {
-      if(!this.show_groups) return
-      const rotation_delta = 160
-      if(isNaN(index)) index=0
-      const style = {
-        filter: `hue-rotate(${rotation_delta*index}deg)`,
-        backgroundColor: 'rgba(0,200,200,0.2)',
+    toggleExportableSelection() {
+      if(this.exportable.length===this.export_codes.length) {
+        this.export_codes = []
+      }else {
+        this.export_codes = [...this.exportable]
       }
-      return style
     },
-    isMappedInREDCap(code) {
-      if(!code) return true
+    isAvailableInREDCap(code='') {
+      if(code.trim()=='') return true
+      if(this.isBlacklisted(code)) return true
       const mapped_codes = this.fhir_metadata_codes
       const mapped = mapped_codes.some(mapped_code => mapped_code===code)
       return mapped
     },
-    isMappedInProject(code) {
-      if(!code) return false
+    /**
+     * check if a code is blacklisted
+     */
+    isBlacklisted(code='') {
+      const codes = codes_blacklist.map(element => element.code)
+
+      const index = codes.indexOf(code)
+      if(index>=0) return codes_blacklist[index].reason
+      else return false
+    },
+    isMappedInProject(code='') {
+      if(code.trim()=='') return true
+      if(this.isBlacklisted(code)) return true
       const mapped_codes = this.mapped_codes
       return mapped_codes.indexOf(code) >=0
     },
+    isExportable(code) {
+      const mapped_in_redcap = this.isAvailableInREDCap(code)
+      const mapped_in_project =this.isMappedInProject(code)
+      return mapped_in_redcap && !mapped_in_project
+    },
     sendNotification(code) {
       this.$API.sendNotification({code})
-    }
+    },
+    getExportText() {
+      const lines = []
+      this.export_codings.forEach(coding => {
+        const line = `${coding.code}\t${coding.display}`
+        lines.push(line)
+      })
+      return lines.join(`\n`)
+    },
+    exportCodes() {
+      const file_name = 'fields'
+      const text = this.getExportText()
+      download(file_name, text)
+    },
 
   },
 }
@@ -190,6 +246,9 @@ export default {
 .project_mapped.is_mapped,
 .redcap_mapped.is_mapped {
   /* background: rgba(0,100,0,.3); */
+}
+button {
+  white-space: nowrap;
 }
 td.centered {
   vertical-align: middle;

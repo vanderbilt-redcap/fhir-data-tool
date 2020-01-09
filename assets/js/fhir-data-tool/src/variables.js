@@ -17,5 +17,8 @@ export const endpoints = [
  * codes to ignore from results
  */
 export const codes_blacklist = [
-    '8716-3', // Vital signs
+    {
+        code: '8716-3', // Vital signs
+        reason: 'too generic'
+    }
 ]
