@@ -1,12 +1,7 @@
 <template>
   <div id="base">
-    <section v-for="(value, key) in data" :key="key">
-      <base-component v-if="typeof value === 'object'" :data="value" />
-      <template v-else>
-        <span>{{key}}:</span><span>{{value}}</span>
-      </template>
-
-    </section>
+    <span>{{msg}}</span>
+    {{test}}
   </div>
 </template>
 
@@ -16,17 +11,18 @@
 export default {
   name: 'base-component',
   props: {
-    data: {
-      type: Object,
+    msg: {
+      type: String,
+      default: 'hello'
     }
   },
-  methods: {
-    onClick() {
-      console.log(123)
+  computed: {
+    test() {
+      return this.$store.state.counter.count
     }
   }
 }
 </script>
 
-<style>
+<style scoped>
 </style>

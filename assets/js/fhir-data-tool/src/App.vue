@@ -1,7 +1,6 @@
 <template>
   <section class="app">
     <router-view/>
-    <DataLoader />
   </section>
 </template>
 
@@ -14,11 +13,30 @@ import API from '@/API/plugin'
 Vue.use(API)
 
 import App from '@/App.vue'
-import DataLoader from '@/components/DataLoader'
+
 
 export default {
   name: 'app',
-  components: {DataLoader},
+  methods: {
+    /**
+     * load data needed for the app
+     */
+    loadRemoteData() {
+      const component = () => import('@/components/DataLoader')
+      this.$store.dispatch('modal/fire',{
+        body_component: component,
+        prevent_closing: true,
+        footer: '',
+        body_properties: {
+          // hide the modal when loading is complete
+          onDone: () => this.$store.dispatch('modal/hide')
+        },
+      })
+    }
+  },
+  mounted() {
+    this.loadRemoteData()
+  },
   store,
   router,
 }

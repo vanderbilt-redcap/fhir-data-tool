@@ -9,18 +9,18 @@
       </div>
       
       <footer>REDCap - © 2020 Vanderbilt University</footer>
-      <Modal />
+      <ModalContainer />
     </section>
 </template>
 
 <script>
-import Modal from '@/components/Modal'
+import ModalContainer from '@/components/ModalContainer'
 import Menu from '@/components/Menu'
 
 export default {
   name: 'MainLayout',
   components: {
-    Modal,
+    ModalContainer,
     Menu,
   },
 }

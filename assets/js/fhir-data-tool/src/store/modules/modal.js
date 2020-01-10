@@ -2,11 +2,14 @@ import Vue from 'vue'
 
 const initialState = {
     show: false,
-    header: '',
-    body: '',
+    prevent_closing: false,
+    header: null,
+    body: null,
     body_component: null,
     body_properties: {},
-    footer: '',
+    footer: null,
+    onOk: null,
+    onCancel: null,
 }
 
 const module = {
@@ -16,20 +19,14 @@ const module = {
         SET_SHOW: function(state, payload) {
             state.show = payload
         },
-        SET_HEADER: function(state, payload) {
-            state.header = payload
+        SET_PROPERTY: function(state, {key, value}) {
+            state[key] = value
         },
-        SET_BODY: function(state, payload) {
-            state.body = payload
-        },
-        SET_BODY_PROPERTIES: function(state, payload) {
-            state.body_component = payload
-        },
-        SET_BODY_COMPONENT: function(state, payload) {
-            state.body_component = payload
-        },
-        SET_FOOTER: function(state, payload) {
-            state.footer = payload
+        RESET: function(state) {
+            Object.entries(initialState)
+            for (let [key, value] of Object.entries(initialState)) {
+                state[key] = value
+            }
         },
     },
     actions: {
@@ -39,28 +36,19 @@ const module = {
          * @param {object} config 
          */
         fire(context, config) {
-            const {header, body, body_component, body_properties, footer} = config
-            if(header) context.dispatch('setHeader', header)
-            if(body) context.dispatch('setBody', body)
-            if(body_component) context.dispatch('setBodyComponent', body_component)
-            if(body_properties) context.dispatch('setBodyProperties', body_properties)
-            if(footer) context.dispatch('setFooter', footer)
+            context.dispatch('setProperties', config)
             context.dispatch('show')
         },
-        setHeader(context, text) {
-            context.commit('SET_HEADER',text)
+        setProperties(context, properties) {
+            const state_keys = Object.keys(initialState)
+            for (let [key, value] of Object.entries(properties)) {
+                if(state_keys.indexOf(key)>=0) {
+                    context.commit('SET_PROPERTY', {key, value})
+                }
+            }
         },
-        setBody(context, text) {
-            context.commit('SET_BODY',text)
-        },
-        setBodyComponent(context, component) {
-            context.commit('SET_BODY_COMPONENT',component)
-        },
-        setBodyProperties(context, properties={}) {
-            context.commit('SET_BODY_PROPERTIES',properties)
-        },
-        setFooter(context, text) {
-            context.commit('SET_FOOTER',text)
+        reset(context) {
+            context.commit('RESET')
         },
         show(context, config) {
             context.commit('SET_SHOW',true)

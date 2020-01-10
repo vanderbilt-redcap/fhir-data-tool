@@ -1,14 +1,8 @@
 <template>
-  <transition name="modal-fade">
-    <div class="modal-backdrop" v-show="showProgress">
-      <div class="vue-modal">
-        <div class="vue-modal-body">
-          <h3>Loading...</h3>
-          <ProgressBar :total="total" :progress="progress" />
-        </div>
-      </div>
-    </div>
-  </transition>
+  <div class="loader">
+    <h3>Loading...</h3>
+    <ProgressBar :total="total" :progress="progress" />
+  </div>
 </template>
 
 <script>
@@ -28,13 +22,19 @@ export default {
     total: 0,
     progress: 0,
   }),
+  props: {
+    onDone: {
+      type: Function,
+      default: () => {}
+    }
+  },
   created() {
-    const promises = []
-    promises.push(this.loadFhirMetadata())
-    promises.push(this.loadProjectInfo())
+    const promises = [
+      this.loadFhirMetadata(),
+      this.loadProjectInfo(),
+    ]
     this.total = promises.length
     this.progress = 0
-    this.$API.getTokens({user:'asdas'})
 
     promises.forEach( async (promise, index) => {
       try {
@@ -43,6 +43,9 @@ export default {
         console.error(error)
       } finally {
         this.progress = this.progress+1
+        if(this.progress >= this.total) {
+          if(typeof(this.onDone)==='function') this.onDone()
+        }
       }
     })
 
@@ -66,44 +69,7 @@ export default {
 </script>
 
 <style scoped>
-/* transitions */
-.modal-fade-enter,
-.modal-fade-leave-active {
-  opacity: 0;
+.loader {
+  width: 400px;
 }
-.modal-fade-enter-active,
-.modal-fade-leave-active {
-  transition: opacity .5s ease
-}
-/* component style */
-.modal-backdrop {
-    position: fixed;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background-color: rgba(0, 0, 0, 0.3);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-
-  .vue-modal {
-    background: #FFFFFF;
-    box-shadow: 2px 2px 20px 1px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-    width: 50%;
-    max-width: 300px;
-    height: auto;
-    position: relative;
-  }
-  .vue-modal > * {
-    flex: 1;
-    width: 100%;
-    height: 100%;
-  }
 </style>

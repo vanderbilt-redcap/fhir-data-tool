@@ -1,24 +1,21 @@
 <template>
-  <transition name="modal-fade">
-    <div class="modal-backdrop" v-show="show">
+  <transition name="modal-fade" @after-leave="afterLeave">
+    <div class="modal-backdrop" v-show="show" @click.self="onBackdropClicked">
       <div class="vue-modal">
         <header class="vue-modal-header">
           <slot name="header">
-            <span>{{title}}</span>
-            <button v-if="closeable" type="button" class="btn-close" @click="close" >x</button>
+            <span></span>
           </slot>
+          <button v-if="!prevent_closing" type="button" class="btn-close" @click.self="onHeaderCloseClicked" >×</button>
         </header>
         <section class="vue-modal-body">
-          <slot name="body">
-            <component v-if="body_component" :is="body_component" v-bind="body_properties" />
-            <span v-else>{{body}}</span>
-          </slot>
+          <slot name="body"></slot>
         </section>
         <footer class="vue-modal-footer">
             <slot name="footer">
-              <span>{{footer}}</span>
-              <button v-if="closeable" type="button" class="btn-green" @click="close">Close</button>
-          </slot>
+              <button type="button" class="btn btn-secondary mr-2" @click.self="onCancelClicked">Cancel</button>
+              <button type="button" class="btn btn-primary" @click.self="onOkClicked">Close</button>
+            </slot>
         </footer>
       </div>
     </div>
@@ -31,46 +28,45 @@ import DataLoader from '@/components/DataLoader'
 
 export default {
   name: 'Modal',
-  data: () => ({
-    title_component: null,
-    footer_component: null,
-  }),
-  computed: {
-    closeable() {
-      const closeable = this.$store.state.modal.closeable
-      return closeable
+  props: {
+    show: {
+      type: Boolean,
+      default: false
     },
-    show() {
-      const show = this.$store.state.modal.show
-      return show
+    showFooter: {
+      type: Boolean,
+      default: true
     },
-    title() {
-      const title = this.$store.state.modal.header
-      return title
-    },
-    body_component() {
-      const component = this.$store.state.modal.body_component
-      return component
-    },
-    body_properties() {
-      const properties = this.$store.state.modal.body_properties || {}
-      return properties
-    },
-    body() {
-      const body = this.$store.state.modal.body
-      return body
-    },
-    footer() {
-      const footer = this.$store.state.modal.footer
-      return footer
+    prevent_closing: {
+      type: Boolean,
+      default: false
     },
   },
   methods: {
-    close() {
-      // this.$emit('close')
-      this.$store.dispatch('modal/hide')
-
+    onBackdropClicked() {
+      if(this.prevent_closing) return
+      this.$emit('backdrop-clicked')
+      this.close()
     },
+    onHeaderCloseClicked() {
+      this.$emit('header-close-clicked')
+      this.close()
+    },
+    onCancelClicked() {
+      this.$emit('cancel-clicked')
+      this.close()
+    },
+    onOkClicked() {
+      this.$emit('ok-clicked')
+      this.close()
+    },
+    close() {
+      this.$store.dispatch('modal/hide')
+      this.$emit('close')
+    },
+    afterLeave() {
+      this.$emit('hidden')
+    }
   },
 }
 </script>
@@ -104,6 +100,9 @@ export default {
     overflow-x: auto;
     display: flex;
     flex-direction: column;
+    margin-top: -40%;
+    max-width: 80%;
+    min-width: 30%;
   }
 
   .vue-modal-header,
@@ -136,8 +135,8 @@ export default {
     font-size: 20px;
     margin-left: 20px;
     cursor: pointer;
-    font-weight: bold;
-    color: #4AAE9B;
+    font-weight: 700;
+    color: rgba(10,10,10,1);
     background: transparent;
   }
 
