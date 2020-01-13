@@ -1,5 +1,10 @@
 <template>
   <div class="string-identifier">
+    <p>The SSN of a patient can be used to retrieve patient data.</p>
+    <ul>
+      <li>THE SSN is represented in resources with dashes removed</li>
+      <li>The OID system to use is 2.16.840.1.113883.4.1</li>
+    </ul>
     <div class="form-group mb-2">
       <label for="ssn" class="mr-2">SSN</label>
       <input type="text" class="form-control" v-model="ssn" id="ssn" />
