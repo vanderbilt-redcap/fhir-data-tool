@@ -6,15 +6,15 @@
           <slot name="header">
             <span></span>
           </slot>
-          <button v-if="!prevent_closing" type="button" class="btn-close" @click.self="onHeaderCloseClicked" >×</button>
+          <button v-if="!prevent_closing" type="button" class="btn-close" @click.self="onHeaderClose" >×</button>
         </header>
         <section class="vue-modal-body">
           <slot name="body"></slot>
         </section>
         <footer class="vue-modal-footer">
             <slot name="footer">
-              <button type="button" class="btn btn-secondary mr-2" @click.self="onCancelClicked">Cancel</button>
-              <button type="button" class="btn btn-primary" @click.self="onOkClicked">Close</button>
+              <button type="button" class="btn btn-secondary mr-2" @click.self="onCancel">{{cancel_text}}</button>
+              <button type="button" class="btn btn-primary" @click.self="onConfirm">{{confirm_text}}</button>
             </slot>
         </footer>
       </div>
@@ -41,6 +41,14 @@ export default {
       type: Boolean,
       default: false
     },
+    confirm_text: {
+      type: String,
+      default: 'Ok'
+    },
+    cancel_text: {
+      type: String,
+      default: 'Cancel'
+    },
   },
   methods: {
     onBackdropClicked() {
@@ -48,16 +56,16 @@ export default {
       this.$emit('backdrop-clicked')
       this.close()
     },
-    onHeaderCloseClicked() {
+    onHeaderClose() {
       this.$emit('header-close-clicked')
       this.close()
     },
-    onCancelClicked() {
-      this.$emit('cancel-clicked')
+    onCancel() {
+      this.$emit('cancel')
       this.close()
     },
-    onOkClicked() {
-      this.$emit('ok-clicked')
+    onConfirm() {
+      this.$emit('confirm')
       this.close()
     },
     close() {
@@ -79,7 +87,7 @@ export default {
 }
 .modal-fade-enter-active,
 .modal-fade-leave-active {
-  transition: opacity .5s ease
+  transition: opacity .3s ease
 }
 /* component style */
 .modal-backdrop {
@@ -113,10 +121,11 @@ export default {
 
   .vue-modal-header {
     border-bottom: 1px solid #eeeeee;
-    color: #4AAE9B;
+    color: rgb(0,0,0);
     justify-content: space-between;
     vertical-align: center;
     align-items: center;
+    font-weight: 700;
   }
 
   .vue-modal-footer {

@@ -5,11 +5,13 @@ const initialState = {
     prevent_closing: false,
     header: null,
     body: null,
-    body_component: null,
-    body_properties: {},
+    component: null,
+    component_properties: {},
     footer: null,
-    onOk: null,
+    onConfirm: null,
     onCancel: null,
+    cancel_text: 'Cancel',
+    confirm_text: 'Ok',
 }
 
 const module = {

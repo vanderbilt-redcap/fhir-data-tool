@@ -1,27 +1,29 @@
 <template>
   <div>
     <Modal
-      :show="show"
-      :prevent_closing="prevent_closing"
+      :show="modal.show"
+      :prevent_closing="modal.prevent_closing"
+      :cancel_text="modal.cancel_text"
+      :confirm_text="modal.confirm_text"
       @hidden="onHidden"
-      @cancel-clicked="onCancelClicked"
-      @ok-clicked="onOkClicked"
+      @cancel="onCancelClicked"
+      @confirm="onConfirmClicked"
       >
       <template v-slot:header>
-        <h3 v-if="title!=null">{{title}}</h3>
+        <span v-if="modal.header!=null">{{modal.header}}</span>
       </template>
       <template v-slot:body>
-          <template  v-if="body_component">
-            <component :is="body_component" v-bind="body_properties" />
+          <template  v-if="modal.component">
+            <component :is="modal.component" v-bind="modal.component_properties" />
           </template>
-          <span>{{body}}</span>
+          <span>{{modal.body}}</span>
       </template>
       <template v-slot:footer>
-        <div v-if="footer!=null">{{footer}}</div>
+        <div v-if="modal.footer!=null">{{modal.footer}}</div>
       </template>
     </Modal>
-    <async-webpack-example />
-    <test :level="3">asdfdsafdsaf</test>
+
+
     <button @click="showModal">shoModal</button>
     <button @click="setComponent">component</button>
   </div>
@@ -31,45 +33,14 @@
 import Vue from 'vue'
 import { mapState } from 'vuex'
 import Modal from '@/components/Modal'
-
-Vue.component(
-  'async-webpack-example',
-  // The `import` function returns a Promise.
-  () => import('@/components/BaseComponent')
-)
-Vue.component('test', {
-
-    // The `import` function returns a Promise.
-  render: (createElement) => {
-    return createElement(
-      'h' + this.level,   // tag name
-      this.$slots.default // array of children
-    )
-  },
-  props: {
-    level: {
-      type: Number,
-      required: true
-    }
-  }
-})
+import BaseComponent from '@/components/BaseComponent'
 
 export default {
   name: 'ModalContainer',
-  components: {
-    Modal,
-  },
+  components: {Modal},
   computed: {
     ...mapState({
-      prevent_closing: state => state.modal.prevent_closing,
-      show: state => state.modal.show,
-      title: state => state.modal.title,
-      body_component: state => state.modal.body_component,
-      body_properties: state => state.modal.body_properties,
-      body: state => state.modal.body,
-      footer: state => state.modal.footer,
-      onCancel: state => state.modal.onCancel,
-      onOk: state => state.modal.onOk,
+      modal: 'modal', // the same as state => state.modal
     }),
   },
   methods: {
@@ -78,13 +49,15 @@ export default {
     },
     setComponent() {
       const body_component = () => import('@/components/BaseComponent')
-      body_component.propsData = {msg:'ciaociao'}
+
       this.$store.dispatch('modal/fire', {
-        body_component,
+        component: body_component,
         // body_properties: {msg:'ciaociao'},
         body: 1234,
-        footer: '',
-        onOk:()=>console.log(123),
+        confirm_text: 'download',
+        onConfirm: () => console.log(123)
+        // footer: '',
+        // onOk:()=>console.log(123),
       })
     },
     onHidden() {
@@ -92,10 +65,10 @@ export default {
       this.$store.dispatch('modal/reset')
     },
     onCancelClicked() {
-      if(typeof this.onCancel == 'function') this.onCancel()
+      if(typeof this.modal.onCancel == 'function') this.modal.onCancel()
     },
-    onOkClicked() {
-      if(typeof this.onOk == 'function') this.onOk()
+    onConfirmClicked() {
+      if(typeof this.modal.onConfirm == 'function') this.modal.onConfirm()
     },
   }
 }

@@ -24,10 +24,10 @@ export default {
     loadRemoteData() {
       const component = () => import('@/components/DataLoader')
       this.$store.dispatch('modal/fire',{
-        body_component: component,
+        component,
         prevent_closing: true,
         footer: '',
-        body_properties: {
+        component_properties: {
           // hide the modal when loading is complete
           onDone: () => this.$store.dispatch('modal/hide')
         },

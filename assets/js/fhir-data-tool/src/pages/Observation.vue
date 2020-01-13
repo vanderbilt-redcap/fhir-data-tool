@@ -7,16 +7,32 @@
     <div v-if="filtered_codings.length">
 
       <section>
-        <p>When a code is not available in REDCap and "add code" request can be sent to the admin for review.</p>
-        <p>Codes that are not mapped in your project can be exported and used as a reference in the mapping process.</p>
+        <p>An "add code" request can be sent to the admin for review when a code is not available in REDCap.</p>
+        <p>Codes that are not mapped in your project can be <b>exported</b> and used as a reference in the mapping process.</p>
       </section>
-      {{export_codings}}
-{{export_codes}}
+
       <table class="table table-striped table-bordered">
         <thead>
           <!-- <th><button type="button" class="btn" @click="toggleGroups">Group</button></th> -->
           <th>Description (from EHR, not from REDCap mapping)</th>
           <th>
+            <div v-show="exportable.length>0">
+              <div class="btn-group" role="group">
+                <button
+                  type="button" 
+                  class="btn btn-sm btn-info"
+                  @click="toggleExportableSelection"
+                ><span>{{(exportable.length===codes_to_export.length) ? `deselect all` : `select all`}} <i class="fas fa-check-square"></i></span></button>
+                <button
+                  type="button"
+                  :disabled="codes_to_export.length<1"
+                  class="btn btn-sm btn-primary"
+                  @click="showPreview">
+                  <span>Export <i class="fas fa-download"></i></span>
+                </button>
+              </div>
+            </div>
+
             <button class="btn btn-sm"
               @click="hide_blacklisted=!hide_blacklisted"
               :title="(hide_blacklisted ? 'show' : 'hide') + ' hidden codes'">
@@ -24,22 +40,6 @@
               <i v-if="hide_blacklisted" class="fa fa-eye-slash"></i>
               <i v-else class="fas fa-eye"></i>
             </button>
-            <div v-show="exportable.length>0">
-              <div class="btn-group" role="group">
-                <button
-                  type="button" 
-                  class="btn btn-sm btn-info"
-                  @click="toggleExportableSelection"
-                ><span>{{(exportable.length===export_codes.length) ? `deselect all` : `select all`}} <i class="fas fa-check-square"></i></span></button>
-                <button
-                  type="button"
-                  :disabled="export_codes.length<1"
-                  class="btn btn-sm btn-primary"
-                  @click="exportCodes">
-                  <span>Export <i class="fas fa-download"></i></span>
-                </button>
-              </div>
-            </div>
           </th>
           <th>System</th>
           <th>Value</th>
@@ -70,7 +70,7 @@
                   <small><em>(not mapped in your project)</em></small>
                 </div>
                 <label :for="`code_checkbox_${coding_index}`" class="mr-2">Select</label>
-                <input type="checkbox" name="" :id="`code_checkbox_${coding_index}`" v-model="export_codes" :value="coding.code">
+                <input type="checkbox" name="" :id="`code_checkbox_${coding_index}`" v-model="codes_to_export" :value="coding.code">
               </section>
             </td>
             <td>{{coding.system}}</td>
@@ -102,7 +102,7 @@ export default {
   data: () => ({
     hide_blacklisted: true,
     show_groups: false,
-    export_codes: [],
+    codes_to_export: [],
     internal_codes: null, // internal state for the mapped codes
   }),
   components: {
@@ -114,11 +114,18 @@ export default {
     /**
      * get a list of the codings based on the selected codes
      */
-    export_codings() {
+    values_to_export() {
       const codings = []
+      // keep track of the codes pushed in codings to avoid duplicates
+      const track_codes = []
       this.filtered_codings.forEach(coding => {
-        if(this.export_codes.indexOf(coding.code)>=0)
-          codings.push(coding)
+        if(this.codes_to_export.indexOf(coding.code)>=0) {
+          // check for codes duplicates
+          if(track_codes.indexOf(coding.code)<0) {
+            track_codes.push(coding.code)
+            codings.push(coding)
+          }
+        }
       })
       return codings
     },
@@ -182,10 +189,10 @@ export default {
   },
   methods: {
     toggleExportableSelection() {
-      if(this.exportable.length===this.export_codes.length) {
-        this.export_codes = []
+      if(this.exportable.length===this.codes_to_export.length) {
+        this.codes_to_export = []
       }else {
-        this.export_codes = [...this.exportable]
+        this.codes_to_export = [...this.exportable]
       }
     },
     isAvailableInREDCap(code='') {
@@ -219,18 +226,34 @@ export default {
     sendNotification(code) {
       this.$API.sendNotification({code})
     },
-    getExportText() {
+    getLinesToExport() {
       const lines = []
-      this.export_codings.forEach(coding => {
+      this.values_to_export.forEach(coding => {
         const line = `${coding.code}\t${coding.display}`
         lines.push(line)
       })
-      return lines.join(`\n`)
+      return lines
     },
-    exportCodes() {
-      const file_name = 'fields'
-      const text = this.getExportText()
-      download(file_name, text)
+    showPreview() {
+      const component = () => import('@/components/DownloadPreview')
+      const lines = this.getLinesToExport()
+      this.$store.dispatch('modal/fire',{
+        component,
+        component_properties: {
+          lines
+        },
+        header: 'Export fields',
+        confirm_text: 'Download',
+        onConfirm: () => this.exportData(lines)
+      })
+    },
+    /**
+     * export data to file:
+     * join array of lines using newline
+     */
+    exportData(lines) {
+      const text = lines.join(`\n`)
+      download('fields', text)
     },
 
   },

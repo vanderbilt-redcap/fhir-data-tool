@@ -10,15 +10,15 @@
       <slot></slot>
       
       <div class="buttons my-2">
-          <button class="btn btn-primary" type="submit" :disabled="!canSubmit || loading">
-           <span class="mr-2">Fetch</span>
-           <i v-if="loading" class="fas fa-spinner fa-spin"></i>
-           <i v-else class="fas fa-cloud-download-alt"></i>
-          </button>
-          <button class="btn btn-info" type="button" @click="onCleanClick">
-            <span class="mr-2">clean results</span>
-            <i class="fas fa-redo"></i>
-          </button>
+        <button class="btn btn-info" type="button" @click="onCleanClick">
+          <span class="mr-2">clean results</span>
+          <i class="fas fa-redo"></i>
+        </button>
+        <button class="btn btn-primary" type="submit" :disabled="!canSubmit || loading">
+          <span class="mr-2">Fetch</span>
+          <i v-if="loading" class="fas fa-spinner fa-spin"></i>
+          <i v-else class="fas fa-cloud-download-alt"></i>
+        </button>
       </div>
     </form>
 
