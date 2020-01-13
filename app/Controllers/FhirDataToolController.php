@@ -58,11 +58,11 @@ namespace REDCap\FhirDataTool\App\Controllers
         }
 
         /**
-         * route, get a list of revisions
+         * get data from a FHIR endpoint
          *
          * @return string json response
          */
-        public function fetchFhirPatientResource()
+        public function fetchFhirResourceByMrn()
         {
             $mrn = $_GET['mrn'];
             $endpoint = $_GET['endpoint'];
@@ -73,7 +73,7 @@ namespace REDCap\FhirDataTool\App\Controllers
                 // $json = file_get_contents(APP_PATH_TEMP.'observation-test.json');
                 // $data = json_decode($json);
                 // override
-                $resource = $this->model->getResource($mrn, $endpoint, $params);
+                $resource = $this->model->getResourceByMrn($mrn, $endpoint, $params);
                 $response = array();
                 if(is_a($resource, \FhirResource::class))
                 {
@@ -105,7 +105,7 @@ namespace REDCap\FhirDataTool\App\Controllers
         }
 
         /**
-         * get 
+         * get fields and codes
          *
          * @return void
          */

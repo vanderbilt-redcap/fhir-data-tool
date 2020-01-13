@@ -81,13 +81,28 @@ export default {
 
 <style scoped>
 /* transitions */
+/* overall opacity */
 .modal-fade-enter,
 .modal-fade-leave-active {
   opacity: 0;
 }
 .modal-fade-enter-active,
 .modal-fade-leave-active {
-  transition: opacity .3s ease
+  transition: opacity .3s ease-out;
+}
+/* translate the modal */
+.modal-fade-enter .vue-modal,
+.modal-fade-leave-active .vue-modal {
+  transform: translate(0, -25%);
+}
+.modal-fade-enter-to .vue-modal,
+.modal-fade-leave .vue-modal {
+  opacity: 1;
+  transform: translate(0, 0);
+}
+.modal-fade-enter-active .vue-modal,
+.modal-fade-leave-active .vue-modal {
+  transition: transform .3s ease-out;
 }
 /* component style */
 .modal-backdrop {
@@ -99,7 +114,7 @@ export default {
     background-color: rgba(0, 0, 0, 0.3);
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start;
   }
 
   .vue-modal {
@@ -108,7 +123,7 @@ export default {
     overflow-x: auto;
     display: flex;
     flex-direction: column;
-    margin-top: -40%;
+    margin: 1.75rem auto;
     max-width: 80%;
     min-width: 30%;
   }

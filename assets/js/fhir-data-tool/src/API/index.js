@@ -43,7 +43,7 @@ class API {
         // https://redcap.test/API_DEV/?pid=104&route=FhirDataToolController:fhirTest&userid=delacqf"
         // const test = qs.parse('status=completed&status=stopped&status=on-hold')
         // const extra_params = qs.stringify(params)
-        const route = 'FhirDataToolController:fetchFhirPatientResource'
+        const route = 'FhirDataToolController:fetchFhirResourceByMrn'
         // get parameters from the current URL
         const query_params = qs.parse(location.search, { ignoreQueryPrefix: true })
 
@@ -54,7 +54,7 @@ class API {
             params: params,
         }
         
-        const url = '/resource'
+        const url = '/resource_by_mrn'
 
         return this.api_client.get(url, {
             params: request_params,

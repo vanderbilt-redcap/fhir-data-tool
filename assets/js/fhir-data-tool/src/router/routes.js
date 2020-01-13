@@ -14,6 +14,7 @@ const routes = [
             { path: '/help', name: 'help', component: () => import('@/pages/Help') },
             { path: '/fhir_metadata', name: 'fhir_metadata', component: () => import('@/pages/FhirMetadata') },
             { path: '/project_info', name: 'project_info', component: () => import('@/pages/ProjectInfo') },
+            { path: '/string-identifier', name: 'string-identifier', component: () => import('@/pages/StringIdentifier') },
 
             { path: "*", name: 'not_found', component: () => import('@/pages/PageNotFound')  }
         ]

@@ -4,13 +4,14 @@ namespace REDCap\FhirDataTool\App\Models
 
     class FhirDataTool
     {
-        
-        private $allowedEndpoint = array(
-            'Observation',
-            'MedicationOrder',
-            'Condition',
-            'Patient',
-            'AllergyIntolerance',
+
+        private $endpoints = array(
+            'Patient.search'            => 'Patient?_id={_id}&identifier={identifier}&family={family}&given={given}&birthdate={birthdate}&address={address}&gender={gender}&telecom={telecom}',
+            'Patient.read'              => 'Patient/{ID}',
+            'Observation.search'        => 'Observation?code={code}&_id={_id}&patient={patient}&subject={subject}&category={category}',
+            'MedicationOrder.search'    => 'MedicationOrder?patient={patient}&status={status}&_id={_id}&subject={subject}',
+            'Condition.search'          => 'Condition?patient={patient}&_id={_id}&clinicalStatus={clinicalStatus}&category={category}&subject={subject}',
+            'AllergyIntolerance.search' => 'AllergyIntolerance?_id={_id}&patient={patient}&subject={subject}',
         );
 
         public function __construct()
@@ -157,7 +158,7 @@ namespace REDCap\FhirDataTool\App\Models
          * @param string $url url of the FHIR resource
          * @return object object with the data returned from the endpoint
          */
-        public function fetchPatientDataFromEndpoint($access_token, $url)
+        public function fetchDataFromEndpoint($access_token, $url)
         {
             global $fhir_client_id, $fhir_client_secret;
 
@@ -174,7 +175,7 @@ namespace REDCap\FhirDataTool\App\Models
             }
         }
 
-        public function getResource($mrn, $endpoint, $params)
+        public function getResourceByMrn($mrn, $endpoint, $params)
         {
             $access_token = static::getAccessToken($mrn);
             try {
@@ -189,7 +190,7 @@ namespace REDCap\FhirDataTool\App\Models
             // Build Epic URL
             $endpoint_url = $this->getFhirEndpointURL($endpoint, $params, $patient_id);
 
-            $data = $this->fetchPatientDataFromEndpoint($access_token, $endpoint_url);
+            $data = $this->fetchDataFromEndpoint($access_token, $endpoint_url);
             $resource = $this->parseData($data);
             
             /**

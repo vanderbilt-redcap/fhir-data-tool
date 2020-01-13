@@ -75,7 +75,7 @@
             </td>
             <td>{{coding.system}}</td>
             <td>{{coding.value}}</td>
-            <td>{{coding.date}}</td>
+            <td>{{formatDate(coding.date)}}</td>
           </tr>
         </tbody>
       </table>
@@ -85,14 +85,14 @@
 </template>
 
 <script>
-
+import moment from 'moment'
 import FhirForm from '@/components/FhirForm'
 import ResourceContainer from '@/components/ResourceContainer'
 import ObservationFields from'@/components/observation/ObservationFields'
 // temp for development
 import observation_json from '@/assets/observation'
 // blacklisted codes
-import {codes_blacklist} from '@/variables'
+import {codes_blacklist, date_format} from '@/variables'
 
 import {download} from '@/libraries'
 
@@ -226,6 +226,9 @@ export default {
     sendNotification(code) {
       this.$API.sendNotification({code})
     },
+    /**
+     * create the lisnes that will be exported
+     */
     getLinesToExport() {
       const lines = []
       this.values_to_export.forEach(coding => {
@@ -234,6 +237,9 @@ export default {
       })
       return lines
     },
+    /**
+     * show a preview of the text file that will be exported
+     */
     showPreview() {
       const component = () => import('@/components/DownloadPreview')
       const lines = this.getLinesToExport()
@@ -255,7 +261,9 @@ export default {
       const text = lines.join(`\n`)
       download('fields', text)
     },
-
+    formatDate(date) {
+      return moment(date).format(date_format) // date_format defined in variables
+    },
   },
 }
 </script>
@@ -271,6 +279,9 @@ export default {
   /* background: rgba(0,100,0,.3); */
 }
 button {
+  white-space: nowrap;
+}
+td {
   white-space: nowrap;
 }
 td.centered {

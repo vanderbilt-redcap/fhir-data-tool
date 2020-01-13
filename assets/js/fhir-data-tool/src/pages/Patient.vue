@@ -20,6 +20,7 @@
 
 <script>
 import FhirForm from '@/components/FhirForm'
+
 import ResourceContainer from '@/components/ResourceContainer'
 
 const table_headers = {
@@ -52,9 +53,6 @@ export default {
   data: () => ({
       table_headers,
   }),
-  props: {
-    msg: String
-  },
   computed: {
     resource() {
       try {
