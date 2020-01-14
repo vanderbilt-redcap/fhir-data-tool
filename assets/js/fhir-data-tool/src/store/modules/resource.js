@@ -41,7 +41,7 @@ const module = {
         async fetchResource(context, {endpoint, mrn, params}) {
             // reset before fecthing
             context.dispatch('reset')
-            const response = await Vue.$API.getFhirResource(endpoint, mrn, params)
+            const response = await Vue.$API.getFhirResourceByMrn(endpoint, mrn, params)
             const resource = response.data || {}
             context.commit('SET_RESOURCE', resource)
             context.dispatch('processResource', resource)

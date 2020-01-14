@@ -9,7 +9,7 @@
       <label for="ssn" class="mr-2">SSN</label>
       <input type="text" class="form-control" v-model="ssn" id="ssn" />
     </div>
-    <button type="button" class="btn btn-primary">Find</button>
+    <button type="button" class="btn btn-primary" @click="search">Search</button>
    
     <ResourceContainer />
   </div>
@@ -47,6 +47,11 @@ export default {
       const {data={}} = this.resource
       return data
     },
+  },
+  methods: {
+    search() {
+      searchBySsn
+    }
   }
 }
 </script>

@@ -92,9 +92,9 @@ import ObservationFields from'@/components/observation/ObservationFields'
 // temp for development
 import observation_json from '@/assets/observation'
 // blacklisted codes
-import {codes_blacklist, date_format} from '@/variables'
+import {codes_blacklist} from '@/variables'
 
-import {download} from '@/libraries'
+import {download, formatDate} from '@/libraries'
 
 
 export default {
@@ -261,9 +261,10 @@ export default {
       const text = lines.join(`\n`)
       download('fields', text)
     },
-    formatDate(date) {
-      return moment(date).format(date_format) // date_format defined in variables
-    },
+    /**
+     * formatDate from Utils
+     */
+    formatDate,
   },
 }
 </script>

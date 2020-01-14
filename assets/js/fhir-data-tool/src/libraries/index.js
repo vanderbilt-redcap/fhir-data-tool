@@ -1,3 +1,3 @@
 export {default as Resource} from './FhirResource/Resource'
 export {default as Bundle} from './FhirResource/Bundle'
-export {download} from './Utils'
+export {download, formatDate} from './Utils'

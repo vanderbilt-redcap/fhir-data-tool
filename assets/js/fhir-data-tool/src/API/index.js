@@ -26,7 +26,7 @@ class API {
                  * FHIR endpoints like the repeat arrayFormat.
                  * available formats are indices, brackets, repeat, comma
                  */
-                return qs.stringify(params, { arrayFormat: 'indices' })
+                return qs.stringify(params, { arrayFormat: 'comma' })
             }
         })
     }
@@ -38,7 +38,7 @@ class API {
      * @param {string} mrn 
      * @param {object} params additional params to use in the request
      */
-    getFhirResource(endpoint, mrn, params)
+    getFhirResourceByMrn(endpoint, mrn, params)
     {
         // https://redcap.test/API_DEV/?pid=104&route=FhirDataToolController:fhirTest&userid=delacqf"
         // const test = qs.parse('status=completed&status=stopped&status=on-hold')

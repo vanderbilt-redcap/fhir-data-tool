@@ -9,24 +9,26 @@
 </template>
 
 <script>
+import {observation_categories} from '@/variables' 
 export default {
   name: 'ObservationFields',
   data: () => ({ 
-    categories: [
-      'laboratory',
-      'vital-signs',
-      'social-history',
-    ],
+    categories: observation_categories,
   }),
   computed: {
     current_category: {
       get() {
-        const params = this.$store.state.endpoint.params
-        const {category} = params['Observation'] || {}
+        const {category} = this.$route.query
+        if(!category) {
+          // set the first category if not is set
+          const default_category = observation_categories[0]
+          this.$router.replace({query: {category: default_category}})
+          return default_category
+        }
         return category
       },
       set(value) {
-        this.$store.dispatch('endpoint/setParam',{key:'Observation', value: {category: value}})
+        this.$router.push({query: {category: value}})
       },
     }
   },

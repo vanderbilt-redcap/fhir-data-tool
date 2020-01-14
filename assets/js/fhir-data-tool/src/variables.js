@@ -4,6 +4,13 @@ export const observation_categories = [
     'social-history',
 ]
 
+export const medication_status_list = [
+    'active',
+    'completed',
+    'on-hold',
+    'stopped',
+]
+
 export const endpoints = [
     'Patient',
     'Condition',
@@ -14,7 +21,7 @@ export const endpoints = [
 ]
 
 export const menu_links = [
-    { label:'Home', to: {name: 'home'} },
+    { label:'Home', to: {name: 'home'}, exact:true },
     { label:'Demographics', to: {name: 'patient'} },
     { label:'Medications', to: {name: 'medication-order'} },
     { label:'Labs and Vitals', to: {name: 'observation'} },

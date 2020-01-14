@@ -1,9 +1,15 @@
 
 <template>
     <ul class="nav nav-tabs">
-      <li v-for="(link, index) in links" :key="index" class="nav-item">
-        <router-link class="nav-link" exact-active-class="active" :to="link.to">{{link.label}}</router-link>
-      </li>
+        <router-link v-for="(link, index) in links" :key="index"
+          v-slot="{ href, isActive, isExactActive }"
+          :to="link.to">
+          <li  class="nav-item">
+            <a :href="href" class="nav-link" :class="{active: link.exact ? isExactActive : isActive}">
+              {{link.label}}
+            </a>
+          </li>
+        </router-link>
     </ul>
 </template>
 

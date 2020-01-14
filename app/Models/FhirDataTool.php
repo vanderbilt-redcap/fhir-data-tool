@@ -1,18 +1,9 @@
 <?php
 namespace REDCap\FhirDataTool\App\Models
 {
-
+    use REDCap\FhirDataTool\App\Models\FhirEndpointpatient;
     class FhirDataTool
     {
-
-        private $endpoints = array(
-            'Patient.search'            => 'Patient?_id={_id}&identifier={identifier}&family={family}&given={given}&birthdate={birthdate}&address={address}&gender={gender}&telecom={telecom}',
-            'Patient.read'              => 'Patient/{ID}',
-            'Observation.search'        => 'Observation?code={code}&_id={_id}&patient={patient}&subject={subject}&category={category}',
-            'MedicationOrder.search'    => 'MedicationOrder?patient={patient}&status={status}&_id={_id}&subject={subject}',
-            'Condition.search'          => 'Condition?patient={patient}&_id={_id}&clinicalStatus={clinicalStatus}&category={category}&subject={subject}',
-            'AllergyIntolerance.search' => 'AllergyIntolerance?_id={_id}&patient={patient}&subject={subject}',
-        );
 
         public function __construct()
         {
@@ -35,46 +26,6 @@ namespace REDCap\FhirDataTool\App\Models
             $record_identifier_external = $mrn;
             $patient_id = $fhirEhr->getPatientIdFromMrn($record_identifier_external, $access_token);
             return $patient_id;
-        }
-
-        private function getFhirEndpointURL($endpoint, $params=array(), $resource_id=null)
-        {
-            // Build Epic URL
-            switch ($endpoint) {
-                case 'Patient':
-                    $url = \FhirResourcePatient::getReadUrl($resource_id);
-                    break;
-                case 'Binary':
-                    $url = \FhirResourceBinary::getReadUrl($resource_id);
-                    break;
-                case 'Observation':
-                    $params['patient'] = $resource_id;
-                    $url = \FhirResourceObservation::getSearchUrl($params);
-                    break;
-                case 'MedicationOrder':
-                    $params['patient'] = $resource_id;
-                    $url = \FhirResourceMedicationOrder::getSearchUrl($params);
-                    break;
-                case 'Condition':
-                    $params['patient'] = $resource_id;
-                    $url = \FhirResourceCondition::getSearchUrl($params);
-                    break;
-                case 'AllergyIntolerance':
-                    $params['patient'] = $resource_id;
-                    $url = \FhirResourceAllergyIntolerance::getSearchUrl($params);
-                    break;
-                case 'DocumentReference':
-                    $params['patient'] = $resource_id;
-                    $url = \FhirResourceDocumentReference::getSearchUrl($params);
-                    break;
-                default:
-                    // $url = $enpoint_base_URL."$endpoint?patient=".urlencode($resource_id);
-                    $url = ''; //endpoint not enabled
-                    break;
-            }
-
-            return $url;
-            
         }
 
         public function getProjectInfo($project_id)
@@ -175,22 +126,47 @@ namespace REDCap\FhirDataTool\App\Models
             }
         }
 
-        public function getResourceByMrn($mrn, $endpoint, $params)
-        {
-            $access_token = static::getAccessToken($mrn);
+        /**
+         * get the FHIR ID of a patient using the MRN
+         *
+         * @param string $mrn
+         * @param string $access_token
+         * @return void
+         */
+        public function getPatientId($mrn, $access_token) {
             try {
                 $patient_id = $this->getPatientIdFormMrn($mrn, $access_token);
                 if($patient_id===false)
                 {
                     throw new \FhirException('no patient ID was found', $code=400);
                 }
+                return $patient_id;
             } catch (\Exception $e) {
                 throw new \FhirException($message=$e->getMessage(), $code=$e->getCode());
             }
-            // Build Epic URL
-            $endpoint_url = $this->getFhirEndpointURL($endpoint, $params, $patient_id);
+        }
 
-            $data = $this->fetchDataFromEndpoint($access_token, $endpoint_url);
+        public function getResourceByMrn($mrn, $endpoint, $params)
+        {
+            $access_token = static::getAccessToken($mrn);
+            $patient_id = $this->getPatientId($mrn, $access_token);
+            // Build FHIR URL
+            list($endpoint_name, $method_name) = explode('.', $endpoint);
+            
+            if($endpoint_name==='Patient' && $method_name==='read')
+            {
+                $patientEndpoint = new FhirEndpointPatient();
+                $url = $patientEndpoint->read($patient_id);
+            }else
+            {
+                $params['patient'] = $patient_id; // set the FHIR ID for the patient in the params
+                $EndpointClassName = __NAMESPACE__."\FhirEndpoint{$endpoint_name}";
+                if(!class_exists($EndpointClassName)) throw new \Exception("Error: cannot instantiate class {$EndpointClassName}", 1);
+                $endpointInstance = new $EndpointClassName();
+                if(!is_callable(array($endpointInstance,  $method_name))) throw new \Exception("Error:no method {$method_name} in class {$EndpointClassName}", 1);
+                $url = call_user_func ( array($endpointInstance, $method_name) , $params );
+            }
+            $data = $this->fetchDataFromEndpoint($access_token, $url);
             $resource = $this->parseData($data);
             
             /**

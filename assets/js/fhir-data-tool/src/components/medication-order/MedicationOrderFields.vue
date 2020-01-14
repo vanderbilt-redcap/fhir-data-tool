@@ -11,45 +11,30 @@
 </template>
 
 <script>
+import {medication_status_list} from '@/variables'
+import qs from 'qs'
+
 export default {
   name: 'MedicationOrderFields',
   data: () => ({ 
-    status_list: [
-      'active',
-      'completed',
-      'on-hold',
-      'stopped',
-    ],
+    status_list: medication_status_list,
     checked: [],
   }),
   created() {
-    const params = this.$store.state.endpoint.params
-    const {status=[]} = params.MedicationOrder || {}
+    const {status=[]} = this.$route.query
     this.checked = status
   },
   watch: {
-    checked() {
-      const value = {status: this.checked}
-      /* this.checked.forEach(status => params.push(`status=${status}`) )
-      const value = params.join('&') */
-      this.$store.dispatch('endpoint/setParam',{key:'MedicationOrder', value})
+    checked(value) {
+      const query = Object.assign({}, this.$route.query)
+      query.status = [...this.checked]
+      // exit if the query has not been changed
+      // if(JSON.stringify(this.$route.query)==JSON.stringify(query)) return
+      this.$router.push({query: {status: [...this.checked]}}).catch(() => {
+        console.log('query params not changed')
+      })
     }
   },
-  computed: {
-    /* checked: {
-      get() {
-        const params = this.$store.state.endpoint.params
-        const checked = params.MedicationOrder || []
-        return checked
-      },
-      set(value) {
-        this.$store.dispatch('endpoint/setParam',{key:'MedicationOrder', value })
-      },
-    } */
-  },
-  methods: {
-    
-  }
 }
 </script>
 

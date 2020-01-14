@@ -12,6 +12,7 @@ $base_url = '/'.basename(dirname(__DIR__)).'/api';
 $routes = [
     [['GET','POST'], $base_url."/test[/{id:\d+}]", 'REDCap\FhirDataTool\App\Controllers\BaseController/test'],
     ['GET', $base_url.'/fhir-test', 'REDCap\FhirDataTool\App\Controllers\FhirDataToolController/fhirTest'],
+    ['GET', $base_url.'/resource', 'REDCap\FhirDataTool\App\Controllers\FhirDataToolController/fetchFhirResource'],
     ['GET', $base_url.'/resource_by_mrn', 'REDCap\FhirDataTool\App\Controllers\FhirDataToolController/fetchFhirResourceByMrn'],
     ['GET', $base_url.'/tokens', 'REDCap\FhirDataTool\App\Controllers\FhirDataToolController/getTokens'],
     ['GET', $base_url.'/index', 'REDCap\FhirDataTool\App\Controllers\FhirDataToolController/index'],

@@ -18,7 +18,7 @@
             <td>{{row.status}}</td>
             <td>{{row.system}}</td>
             <td>{{row.code}}</td>
-            <td>{{row.date}}</td>
+            <td>{{formatDate(row.date)}}</td>
           </tr>
         </tbody>
       </table>
@@ -31,6 +31,7 @@
 <script>
 import FhirForm from '@/components/FhirForm'
 import ResourceContainer from '@/components/ResourceContainer'
+import {formatDate} from '@/libraries'
 
 export default {
   name: 'ConditionPage',
@@ -76,7 +77,12 @@ export default {
       return rows
     },
   },
-  methods: {},
+  methods: {
+    /**
+     * formatDate from Utils
+     */
+    formatDate,
+  }
 }
 </script>
 

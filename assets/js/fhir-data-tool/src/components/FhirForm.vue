@@ -49,16 +49,16 @@ export default {
       const {name:route_name} = this.$route
       switch (route_name) {
         case 'patient':
-          return 'Patient'
+          return 'Patient.read'
           break;
         case 'medication-order':
-          return 'MedicationOrder'
+          return 'MedicationOrder.search'
           break;
         case 'observation':
-          return 'Observation'
+          return 'Observation.search'
           break;
         case 'condition':
-          return 'Condition'
+          return 'Condition.search'
           break;
       
         default:
@@ -74,8 +74,9 @@ export default {
         return
       }
       const mrn = this.$store.state.endpoint.mrn
-      const all_params = this.$store.state.endpoint.params // global params object. contains params for every endpoint
-      const params = all_params[endpoint] || [] // get extra params for the current endpoint
+      /* const all_params = this.$store.state.endpoint.params // global params object. contains params for every endpoint
+      const params = all_params[endpoint] || [] // get extra params for the current endpoint */
+      const params = this.$route.query
       try {
         this.loading = true
         const resource = await this.$store.dispatch('resource/fetchResource', {endpoint, mrn, params})
