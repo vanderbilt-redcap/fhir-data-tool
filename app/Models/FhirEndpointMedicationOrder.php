@@ -5,11 +5,11 @@ namespace REDCap\FhirDataTool\App\Models
 
     class FhirEndpointMedicationOrder extends FhirEndpoint
     {
-        const NAME = 'MedicationOrder';
+        const RESOURCE_TYPE = 'MedicationOrder';
 
         public function search($params)
         {
-            $valid_keys = array(
+            $accepted_keys = array(
                 'patient',
                 'status',
                 'code',
@@ -20,9 +20,8 @@ namespace REDCap\FhirDataTool\App\Models
                 'prescriber',
             );
 
-            $query_params = $this->getQueryParams($params, $valid_keys);
-            $url = "{$this->base_URL}".self::NAME."?{$query_params}";
-            return $url;
+            $filtered_params = $this->filterParams($params, $accepted_keys);
+            return parent::search($filtered_params);
         }
 
     }

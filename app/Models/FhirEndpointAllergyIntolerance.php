@@ -5,16 +5,15 @@ namespace REDCap\FhirDataTool\App\Models
 
     class FhirEndpointAllergyIntolerance extends FhirEndpoint
     {
-        const NAME = 'AllergyIntolerance';
+        const RESOURCE_TYPE = 'AllergyIntolerance';
 
         public function search($params)
         {
-            $valid_keys = array(
+            $accepted_keys = array(
 
             );
-            $query_params = $this->getQueryParams($params, $valid_keys);
-            $url = "{$this->base_URL}".self::NAME."?{$query_params}";
-            return $url;
+            $filtered_params = $this->filterParams($params, $accepted_keys);
+            return parent::search($filtered_params);
         }
 
     }

@@ -2,8 +2,8 @@
 namespace REDCap\FhirDataTool\App\Controllers
 {
 
-    use DynamicDataPull;
     use REDCap\FhirDataTool\App\Models\FhirDataTool;
+    use REDCap\FhirDataTool\App\Models\FhirEndpoint;
 
     /**
      * @method void index()
@@ -65,15 +65,45 @@ namespace REDCap\FhirDataTool\App\Controllers
         public function fetchFhirResourceByMrn()
         {
             $mrn = $_GET['mrn'];
-            $endpoint = $_GET['endpoint'];
+            $interaction = $_GET['interaction_name'];
+            $resource_type = $_GET['resource_type'];
             $params = $_GET['params'];
             try {
-                // TODO: get rid of this after the tests are done!!
-                // override
-                // $json = file_get_contents(APP_PATH_TEMP.'observation-test.json');
-                // $data = json_decode($json);
-                // override
-                $resource = $this->model->getResourceByMrn($mrn, $endpoint, $params);
+                $resource = $this->model->getResourceByMrn($mrn, $resource_type, $interaction, $params);
+                $response = array();
+                if(is_a($resource, \FhirResource::class))
+                {
+                    $response['data'] = $resource;
+                    $response['metadata'] = $resource->getMetaData();
+                }
+                $this->printJSON($response, $status_code=200);
+            } catch (\FhirException $e) {
+                $this->printJSON($e, $status_code=$e->getCode());
+            }
+        }
+
+        /**
+         * get data from a FHIR endpoint
+         *
+         * @return string json response
+         */
+        public function fetchFhirResource()
+        {
+            $endpoint = $_GET['endpoint'];
+            $interaction = $_GET['interaction'];
+            $resource_type = $_GET['resource_type'];
+            $id = $_GET['id'];
+            $params = $_GET['params'];
+            try {
+                $access_token = FhirDataTool::getAccessToken();
+                if(in_array($interaction, array(FhirEndpoint::INTERACTION_READ, FhirEndpoint::INTERACTION_UPDATE, FhirEndpoint::INTERACTION_DELETE)))
+                {
+
+                }else
+                {
+
+                }
+                $resource = $this->model->getResource($endpoint, $access_token, $params);
                 $response = array();
                 if(is_a($resource, \FhirResource::class))
                 {

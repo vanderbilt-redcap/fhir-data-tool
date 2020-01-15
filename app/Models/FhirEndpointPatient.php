@@ -5,15 +5,11 @@ namespace REDCap\FhirDataTool\App\Models
 
     class FhirEndpointPatient extends FhirEndpoint
     {
-        public function read($ID)
-        {
-            $url = "{$this->base_URL}Patient/{$ID}";
-            return $url;
-        }
+        const RESOURCE_TYPE = 'Patient';
 
         public function search($params)
         {
-            $valid_params = array(
+            $accepted_keys = array(
                 '_id',
                 'identifier',
                 'family',
@@ -23,10 +19,8 @@ namespace REDCap\FhirDataTool\App\Models
                 'gender',
                 'telecom',
             );
-            $filtered_params = array_intersect($params, $valid_params);
-            $query_params = http_build_query($filtered_params);
-            $url = "{$this->base_URL}Patient?{$query_params}";
-            return $url;
+            $filtered_params = $this->filterParams($params, $accepted_keys);
+            return parent::search($filtered_params);
         }
 
         /**

@@ -1,7 +1,7 @@
 <?php
 namespace REDCap\FhirDataTool\App\Models
 {
-    use REDCap\FhirDataTool\App\Models\FhirEndpointpatient;
+    use REDCap\FhirDataTool\App\Models\FhirEndpoint;
     class FhirDataTool
     {
 
@@ -72,7 +72,7 @@ namespace REDCap\FhirDataTool\App\Models
          * @throws FhirException
          * @return string
          */
-        public static function getAccessToken($mrn)
+        public static function getAccessToken($mrn=null)
         {
             global $lang;
             // Obtain an active FHIR access token for this patient
@@ -146,33 +146,57 @@ namespace REDCap\FhirDataTool\App\Models
             }
         }
 
-        public function getResourceByMrn($mrn, $endpoint, $params)
+        public function getResource($resource_type, $interaction, $params)
         {
-            $access_token = static::getAccessToken($mrn);
-            $patient_id = $this->getPatientId($mrn, $access_token);
-            // Build FHIR URL
-            list($endpoint_name, $method_name) = explode('.', $endpoint);
+            $access_token = self::getAccessToken();
+            $endpoint = FhirEndpoint::getInstance($resource_type, $access_token);
             
-            if($endpoint_name==='Patient' && $method_name==='read')
-            {
-                $patientEndpoint = new FhirEndpointPatient();
-                $url = $patientEndpoint->read($patient_id);
-            }else
-            {
-                $params['patient'] = $patient_id; // set the FHIR ID for the patient in the params
-                $EndpointClassName = __NAMESPACE__."\FhirEndpoint{$endpoint_name}";
-                if(!class_exists($EndpointClassName)) throw new \Exception("Error: cannot instantiate class {$EndpointClassName}", 1);
-                $endpointInstance = new $EndpointClassName();
-                if(!is_callable(array($endpointInstance,  $method_name))) throw new \Exception("Error:no method {$method_name} in class {$EndpointClassName}", 1);
-                $url = call_user_func ( array($endpointInstance, $method_name) , $params );
+            switch (strtolower($interaction)) {
+                case FhirEndpoint::INTERACTION_READ:
+                    $data = $endpoint->read($id=$params);
+                    break;
+                case FhirEndpoint::INTERACTION_SEARCH:
+                    $data = $endpoint->search($params);
+                    break;
+                // this interactions are not available in REDCap
+                case FhirEndpoint::INTERACTION_UPDATE:
+                case FhirEndpoint::INTERACTION_DELETE:
+                case FhirEndpoint::INTERACTION_CREATE:
+                case FhirEndpoint::INTERACTION_HISTORY:
+                case FhirEndpoint::INTERACTION_TRANSACTION:
+                case FhirEndpoint::INTERACTION_OPERATION:
+                    throw new \Exception("Interactions of type '{$interaction}' are not available in REDCap", 1);
+                    break;
+                default:
+                    throw new \Exception("Erreo: you must specify an interaction", 1);
+                break;
             }
-            $data = $this->fetchDataFromEndpoint($access_token, $url);
             $resource = $this->parseData($data);
+            return $resource;
+        }
+
+        public function getResourceByMrn($mrn, $resource_type, $interaction, $params=array())
+        {
+            $access_token = self::getAccessToken($mrn);
+            $patient_id = $this->getPatientId($mrn, $access_token);
+
+            switch (strtolower($interaction)) {
+                case FhirEndpoint::INTERACTION_READ:
+                    $params = $patient_id;
+                    break;
+                case FhirEndpoint::INTERACTION_SEARCH:
+                    $params['patient'] = $patient_id;
+                    break;
+                default:
+                    break;
+            }
+            $resource = $this->getResource($resource_type, $interaction, $params);
+            return $resource;
             
             /**
              * check for documentreference resources and save related files
              */
-            if(is_a($resource, \FhirResourceBundle::class))
+            /* if(is_a($resource, \FhirResourceBundle::class))
             {
                 $entries = $resource->entries;
                 $saveAttachment = function($mrn, $attachment)
@@ -213,64 +237,7 @@ namespace REDCap\FhirDataTool\App\Models
                     // break; //temporary
                 }
             }
-            return $resource;
-        }
-
-        /**
-         * save a file locally
-         *
-         * @param string $binary_data
-         * @param string $path
-         * @return void
-         */
-        private function saveFile($binary_data, $path)
-        {
-            $destination = dirname($path);
-            if(!file_exists($destination)) mkdir($destination, 0777, true);
-            $flags = FILE_APPEND;
-            $flags = null; // overwrite
-            return file_put_contents( $path , $binary_data , $flags );
-        }
-
-        /**
-         * get the attachment data
-         * if the data has already been saved locally then get the local file
-         * otherwise get the remote binary data.
-         * when the data is fetch from the remote FHIR endpoint it is also persisted locally.
-         * download new data also if the file exists and is older than $max_age
-         * 
-         *
-         * @param string $access_token
-         * @param string $mrn
-         * @param object $entry
-         * @param object $attachment
-         * @param integer $max_age 600 = 10 minutes
-         * @return void
-         */
-        public function getAttachment($access_token, $mrn, $entry, $attachment, $max_age=600)
-        {
-            $contentType = $attachment->contentType;
-            $url = $attachment->url;
-            $file_extension = explode('/', $contentType )[1];
-            $destination = EDOC_PATH.'document_reference';
-            $document_id = $entry->id;
-            $file_name = sprintf("%s_%s.%s", $mrn, $document_id, $file_extension);
-            $file_path = sprintf("%s/%s", $destination, $file_name);
-            $creation_date = filemtime($file_path);
-            $now = time();
-            if($creation_date===false || ($now - $creation_date)>=$max_age)
-            {
-                $binary_data = $this->getBinaryData($access_token, $url, $contentType);
-                $success = $this->saveFile($binary_data, $file_path);
-                if(!$success)
-                {
-                    $message = sprintf("Error Processing Request. Could not save the file to path %s", $file_path);
-                    throw new \Exception($message, 1);
-                }
-            }else {
-                $binary_data = file_get_contents($file_path);
-            }
-            return $binary_data;
+            return $resource; */
         }
 
         /**
@@ -299,56 +266,6 @@ namespace REDCap\FhirDataTool\App\Models
                 }
             }
             return $groups;
-        }
-
-        /**
-         * get the data from a binary file
-         *
-         * @param string $url
-         * @param string $patient_id used to retreive the same access token of the patient owning the file
-         * @return string
-         */
-        public function getBinaryData($access_token, $url, $contentType)
-        {
-            global $fhir_client_id, $fhir_client_secret;
-            
-            // Instantiate FHIR Services
-            try {
-                $headers = array(
-                    'Accept' => null,
-                    'Content-Type' => $contentType,
-                );
-                $fhirData = $this->getFhirData($url, $access_token, $headers);
-                return $fhirData;
-            } catch (\Exception $e) {
-                throw new \FhirException($message=$e->getMessage(), $code=$e->getCode());
-            }
-        }
-
-        /**
-         * get data from a FHIR endpoint
-         *
-         * @param string $url
-         * @param string $access_token
-         * @param array $headers
-         * @return string HTTP response body
-         */
-        public function getFhirData($url=null, $access_token=null, $headers=array())
-        {
-            if (empty($access_token)) throw new \Exception("No access token available.");
-            $default_headers = array(
-                'Accept' => 'application/json',
-                'Content-Type' => 'application/x-www-form-urlencoded',
-                'Authorization' => "Bearer {$access_token}",
-            );
-            $request_headers = array_merge($default_headers, $headers);
-            $http_options = array(
-                'headers' => $request_headers,
-                'options' => array('timeout'=> 30),
-            );
-
-            $response = \HttpClient::request($method='GET', $url, $http_options);
-            return $response->body;
         }
 
         /**

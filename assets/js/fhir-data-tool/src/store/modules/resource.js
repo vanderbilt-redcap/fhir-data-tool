@@ -38,10 +38,10 @@ const module = {
             context.commit('SET_MEDICATION_ORDERS', initialState.medication_orders)
             context.commit('SET_PATIENT', initialState.patient)
         },
-        async fetchResource(context, {endpoint, mrn, params}) {
+        async fetchResource(context, {interaction, mrn, params}) {
             // reset before fecthing
             context.dispatch('reset')
-            const response = await Vue.$API.getFhirResourceByMrn(endpoint, mrn, params)
+            const response = await Vue.$API.getFhirResourceByMrn(interaction, mrn, params)
             const resource = response.data || {}
             context.commit('SET_RESOURCE', resource)
             context.dispatch('processResource', resource)

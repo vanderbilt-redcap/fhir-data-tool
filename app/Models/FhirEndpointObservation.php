@@ -5,11 +5,11 @@ namespace REDCap\FhirDataTool\App\Models
 
     class FhirEndpointObservation extends FhirEndpoint
     {
-        const NAME = 'Observation';
+        const RESOURCE_TYPE = 'Observation';
 
         public function search($params)
         {
-            $valid_keys = array(
+            $accepted_keys = array(
                 'category',
                 'code',
                 'code-value-[x]', // TODO: manage as regular expression
@@ -38,9 +38,8 @@ namespace REDCap\FhirDataTool\App\Models
                 'value-string',
             );
 
-            $query_params = $this->getQueryParams($params, $valid_keys);
-            $url = "{$this->base_URL}".self::NAME."?{$query_params}";
-            return $url;
+            $filtered_params = $this->filterParams($params, $accepted_keys);
+            return parent::search($filtered_params);
         }
 
     }

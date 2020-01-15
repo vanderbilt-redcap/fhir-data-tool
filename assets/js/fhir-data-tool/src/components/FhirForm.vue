@@ -26,6 +26,8 @@
 </template>
 
 <script>
+import {Interaction} from '@/libraries'
+
 
 export default {
   name: 'FhirForm',
@@ -45,22 +47,21 @@ export default {
     canSubmit() {
       return Boolean(this.mrn.trim())
     },
-    endpoint() {
+    interaction() {
       const {name:route_name} = this.$route
       switch (route_name) {
         case 'patient':
-          return 'Patient.read'
+          return new Interaction('read', 'Patient')
           break;
         case 'medication-order':
-          return 'MedicationOrder.search'
+          return new Interaction('search', 'MedicationOrder')
           break;
         case 'observation':
-          return 'Observation.search'
+          return new Interaction('search', 'Observation')
           break;
         case 'condition':
-          return 'Condition.search'
+          return new Interaction('search', 'Condition')
           break;
-      
         default:
           break;
       }
@@ -68,9 +69,10 @@ export default {
   },
   methods: {
     async onSubmit() {
-      const endpoint = this.endpoint
-      if(!endpoint) {
-        alert('invalid endpoint')
+      const interaction = this.interaction
+      console.log(interaction)
+      if(!interaction) {
+        alert('invalid interaction')
         return
       }
       const mrn = this.$store.state.endpoint.mrn
@@ -79,7 +81,7 @@ export default {
       const params = this.$route.query
       try {
         this.loading = true
-        const resource = await this.$store.dispatch('resource/fetchResource', {endpoint, mrn, params})
+        const resource = await this.$store.dispatch('resource/fetchResource', {interaction, mrn, params})
       } catch (error) {
         console.error(error)
       }finally {

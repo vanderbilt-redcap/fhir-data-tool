@@ -2,11 +2,11 @@
 namespace REDCap\FhirDataTool\App\Models
 {
 
-    class FhirEndpoint
+    abstract class FhirEndpoint
     {
 
         /**
-         * prefixes for values or ranges
+         * accepted prefixes for values or ranges
          *
          * @see https://www.hl7.org/fhir/search.html#modifiers
          * @var array
@@ -22,11 +22,33 @@ namespace REDCap\FhirDataTool\App\Models
         protected static $common_parameters = array('_content', '_id', '_lastUpdated', '_profile', '_query', '_security', '_tag', '_text');
 
         /**
+         * FHIR resource type
+         * 
+         * @see https://www.hl7.org/fhir/resourcelist.html
+         */
+        const RESOURCE_TYPE = null;
+
+        /**
+         * interaction types
+         * 
+         * @see https://www.hl7.org/fhir/overview-dev.html#Interactions
+         */
+        const INTERACTION_READ = 'read';
+        const INTERACTION_UPDATE = 'update';
+        const INTERACTION_DELETE = 'delete';
+        const INTERACTION_CREATE = 'create';
+        const INTERACTION_SEARCH = 'search';
+        const INTERACTION_HISTORY = 'history';
+        const INTERACTION_TRANSACTION = 'transaction';
+        const INTERACTION_OPERATION = 'operation';
+
+        /**
          * datetime in FHIR compatible format
          * 
          * @see https://www.hl7.org/fhir/datatypes.html#dateTime
          */
         const FHIR_DATETIME_FORMAT = "Y-m-d\TH:i:s\Z";
+        
         /**
          * the enpoint URL
          *
@@ -34,15 +56,138 @@ namespace REDCap\FhirDataTool\App\Models
          */
         protected $base_URL = '';
 
+        /**
+         * the full url to the resource
+         * includes the base URL and the resource name
+         *
+         * @var string
+         */
+        protected $resource_url = '';
+
+        /**
+         * access token used to retrieve data from the FHIR endpoints
+         *
+         * @var string
+         */
+        protected $access_token = null;
+
 
         /**
          * create a FHIR endpoint
          *
          * @param object $field_info
          */
-        public function __construct()
+        public function __construct($access_token)
         {
             $this->base_URL = \FhirEhr::getFhirEndpointBaseUrl();
+            $this->resource_url = $this->base_URL.static::RESOURCE_TYPE;
+            $this->access_token = $access_token;
+        }
+
+        /**
+         * return the url for the read interaction
+         * method: GET
+         * 
+         * @param string $id
+         * @return string
+         */
+        public function read($id)
+        {
+           $url = "{$this->resource_url}/{$id}";
+           $data = $this->getFhirData($url, $this->access_token);
+           return json_decode($data);
+        }
+
+        /**
+         * return the url for the search interaction
+         * method: GET
+         * 
+         * @param array $params
+         * @return string
+         */
+        public function search($params)
+        {
+            $query_params = http_build_query($params);
+            $url = "{$this->resource_url}/?{$query_params}";
+            $data = $this->getFhirData($url, $this->access_token);
+            return json_decode($data);
+        }
+
+        /**
+         * return the url for the update interaction
+         * method: PUT
+         * 
+         * @param string $id
+         * @return string
+         */
+        public function update($id)
+        {
+            $url = "{$this->resource_url}/{$id}";
+            return;
+        }
+
+        /**
+         * return the url for the delete interaction
+         * method: DELETE
+         * 
+         * @param string $id
+         * @return string
+         */
+        public function delete($id)
+        {
+            $url = "{$this->resource_url}/{$id}";
+            return;
+        }
+
+        /**
+         * return the url for the history interaction
+         * method: GET
+         * 
+         * @param string $id
+         * @return string
+         */
+        public function history($id)
+        {
+            $url = "{$this->resource_url}/{$id}/_history";
+            return;
+        }
+
+        /**
+         * return the url for the create interaction
+         * method: POST
+         * 
+         * @return string
+         */
+        public function create()
+        {
+            $url = "{$this->resource_url}/";
+            return;
+        }
+        
+        /**
+         * return the url for the transaction interaction
+         * method: POST
+         * 
+         * @return string
+         */
+        public function transaction()
+        {
+            $url = $this->base_URL;
+            return;
+        }
+
+        /**
+         * return the url for the operation interaction
+         * method: GET
+         * 
+         * @param string $id
+         * @param string $operation_name
+         * @return string
+         */
+        public function operation($id, $operation_name)
+        {
+            $url = "{$this->resource_url}/{$id}/{$operation_name}";
+            return;
         }
 
         /**
@@ -51,23 +196,62 @@ namespace REDCap\FhirDataTool\App\Models
          * - arrays are transformed in comma separated strings
          *
          * @param array $params 
-         * @param array $valid_keys accepted param keys
+         * @param array $accepted_keys additional accepted param keys
          * @return void
          */
-        protected function getQueryParams($params, $valid_keys)
+        protected function filterParams($params, $accepted_keys)
         {
             $filtered_params = array();
-            $valid_keys = array_merge($valid_keys, self::$common_parameters);
+            $accepted_params = array_merge($accepted_keys, self::$common_parameters);
 
             foreach ($params as $key => $value) {
                 if(empty($value)) continue;
-                if(!in_array($key,$valid_keys)) continue;
+                if(!in_array($key,$accepted_params)) continue;
                 if(is_array($value)) $value = implode(', ', $value); // trasform array in comma separated values (FHIR compatible)
                 $filtered_params[$key] = $value;
             }
 
-            $query_params = http_build_query($filtered_params);
-            return $query_params;
+            return $filtered_params;
+        }
+
+                /**
+         * get data from a FHIR endpoint
+         *
+         * @param string $url
+         * @param string $access_token
+         * @param array $headers
+         * @return string HTTP response body
+         */
+        protected function getFhirData($url=null, $access_token=null, $headers=array())
+        {
+            if (empty($access_token)) throw new \Exception("No access token available.");
+            $default_headers = array(
+                'Accept' => 'application/json',
+                'Content-Type' => 'application/x-www-form-urlencoded',
+                'Authorization' => "Bearer {$access_token}",
+            );
+            $request_headers = array_merge($default_headers, $headers);
+            $http_options = array(
+                'headers' => $request_headers,
+                'options' => array('timeout'=> 30),
+            );
+
+            $response = \HttpClient::request($method='GET', $url, $http_options);
+            return $response->body;
+        }
+
+        /**
+         * get an enpoint instance using a resource type
+         *
+         * @param [type] $resource_type
+         * @return FhirEndpoint
+         */
+        public static function getInstance($resource_type, $access_token)
+        {
+            $ClassName = __NAMESPACE__."\FhirEndpoint{$resource_type}";
+            if(!class_exists($ClassName)) throw new \Exception("Error: cannot instantiate class {$ClassName}", 1);
+            $instance = new $ClassName($access_token);
+            return $instance;
         }
 
         /**

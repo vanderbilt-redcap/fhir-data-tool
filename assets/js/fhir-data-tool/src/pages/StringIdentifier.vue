@@ -33,15 +33,14 @@ export default {
   computed: {
     resource() {
       try {
-        
         const { resource={} } = this.$store.state.resource
         const {metadata:{resourceType}} = resource
         // make sure the resource is of type patient
         if(resourceType!=='Patient') return {}
         return resource
-        } catch (error) {
-          return {}
-        }
+      } catch (error) {
+        return {}
+      }
     },
     data() {
       const {data={}} = this.resource
@@ -49,8 +48,9 @@ export default {
     },
   },
   methods: {
-    search() {
-      searchBySsn
+    async search() {
+      const response = await this.$API.getFhirResource('Patient.search', this.ssn)
+      console.log(response)
     }
   }
 }

@@ -34,11 +34,43 @@ class API {
 
     /**
      * get data from a FHIR endpoint
+     * @param {Interaction} interaction 
+     * @param {string} mrn 
+     * @param {object} params additional params to use in the request
+     */
+    getFhirResourceByMrn(interaction, mrn, params=[])
+    {
+        console.log(interaction)
+        const {method_name: interaction_name, resource_type} = interaction
+        // https://redcap.test/API_DEV/?pid=104&route=FhirDataToolController:fhirTest&userid=delacqf"
+        // const test = qs.parse('status=completed&status=stopped&status=on-hold')
+        // const extra_params = qs.stringify(params)
+        const route = 'FhirDataToolController:fetchFhirResourceByMrn'
+        // get parameters from the current URL
+        const query_params = qs.parse(location.search, { ignoreQueryPrefix: true })
+
+        const request_params = {
+            // route,
+            interaction_name,
+            resource_type,
+            mrn,
+            params,
+        }
+        
+        const url = '/resource_by_mrn'
+
+        return this.api_client.get(url, {
+            params: request_params,
+        })
+    }
+
+    /**
+     * get data from a FHIR endpoint
      * @param {string} endpoint 
      * @param {string} mrn 
      * @param {object} params additional params to use in the request
      */
-    getFhirResourceByMrn(endpoint, mrn, params)
+    getFhirResource(endpoint, patient_id, params=[])
     {
         // https://redcap.test/API_DEV/?pid=104&route=FhirDataToolController:fhirTest&userid=delacqf"
         // const test = qs.parse('status=completed&status=stopped&status=on-hold')
@@ -49,12 +81,12 @@ class API {
 
         const request_params = {
             // route,
-            endpoint: endpoint,
-            mrn: mrn,
-            params: params,
+            endpoint,
+            patient_id,
+            params,
         }
         
-        const url = '/resource_by_mrn'
+        const url = '/resource'
 
         return this.api_client.get(url, {
             params: request_params,

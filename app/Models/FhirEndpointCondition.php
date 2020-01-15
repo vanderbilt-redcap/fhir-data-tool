@@ -5,11 +5,11 @@ namespace REDCap\FhirDataTool\App\Models
 
     class FhirEndpointCondition extends FhirEndpoint
     {
-        const NAME = 'Condition';
+        const RESOURCE_TYPE = 'Condition';
 
         public function search($params)
         {
-            $valid_keys = array(
+            $accepted_keys = array(
                 'asserter',
                 'body-site',
                 'category',
@@ -26,9 +26,8 @@ namespace REDCap\FhirDataTool\App\Models
                 'stage',
             );
             
-            $query_params = $this->getQueryParams($params, $valid_keys);
-            $url = "{$this->base_URL}".self::NAME."?{$query_params}";
-            return $url;
+            $filtered_params = $this->filterParams($params, $accepted_keys);
+            return parent::search($filtered_params);
         }
 
     }
