@@ -45,10 +45,11 @@ namespace REDCap\FhirDataTool\App\Controllers
          */
         public function getProjectInfo()
         {
+            $model = new FhirDataTool();
             $project_id = $_GET['pid'];
-            $project_info = $this->model->getProjectInfo($project_id);
-            $datamart_active_revision = $this->model->getDatamartRevision($project_id);
-            $cdp_mapping = $this->model->getClinicalDataPullMapping($project_id);
+            $project_info = $model->getProjectInfo($project_id);
+            $datamart_active_revision = $model->getDatamartRevision($project_id);
+            $cdp_mapping = $model->getClinicalDataPullMapping($project_id);
             $response = array(
                 'info' => $project_info,
                 'datamart_revision' => $datamart_active_revision,
@@ -64,12 +65,13 @@ namespace REDCap\FhirDataTool\App\Controllers
          */
         public function fetchFhirResourceByMrn()
         {
+            $model = new FhirDataTool();
             $mrn = $_GET['mrn'];
             $interaction = $_GET['interaction_name'];
             $resource_type = $_GET['resource_type'];
             $params = $_GET['params'];
             try {
-                $resource = $this->model->getResourceByMrn($mrn, $resource_type, $interaction, $params);
+                $resource = $model->getResourceByMrn($mrn, $resource_type, $interaction, $params);
                 $response = array();
                 if(is_a($resource, \FhirResource::class))
                 {
@@ -89,6 +91,7 @@ namespace REDCap\FhirDataTool\App\Controllers
          */
         public function fetchFhirResource()
         {
+            $model = new FhirDataTool();
             $endpoint = $_GET['endpoint'];
             $interaction = $_GET['interaction'];
             $resource_type = $_GET['resource_type'];
@@ -103,7 +106,7 @@ namespace REDCap\FhirDataTool\App\Controllers
                 {
 
                 }
-                $resource = $this->model->getResource($endpoint, $access_token, $params);
+                $resource = $model->getResource($endpoint, $access_token, $params);
                 $response = array();
                 if(is_a($resource, \FhirResource::class))
                 {
@@ -123,13 +126,14 @@ namespace REDCap\FhirDataTool\App\Controllers
          */
         public function getTokens()
         {
+            $model = new FhirDataTool();
             $user = $_GET['user'];
             if(!$user)
             {
                 $e = new \FhirException('No user has been specified', $code=400);
                 $this->printJSON($e, $status_code=$e->getCode());
             }
-            $tokens = $this->model->getTokens($user);
+            $tokens = $model->getTokens($user);
             $response = $tokens;
             $this->printJSON($response, $status_code=200);
         }
@@ -141,9 +145,10 @@ namespace REDCap\FhirDataTool\App\Controllers
          */
         public function getFhirMetadata()
         {
+            $model = new FhirDataTool();
             $ddp = new \DynamicDataPull(0, 'FHIR');
             $source_fields = $ddp->getExternalSourceFields();
-            $fields = $this->model->getGroupedSourceFields($source_fields);
+            $fields = $model->getGroupedSourceFields($source_fields);
             $data = array(
                 'fields' => $fields,
                 'codes' => array_keys($source_fields),

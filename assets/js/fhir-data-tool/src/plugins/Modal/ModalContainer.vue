@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div data-bmodal>
     <Modal
       :show="modal.show"
       :prevent_closing="modal.prevent_closing"
@@ -23,28 +23,36 @@
       </template>
     </Modal>
 
-
-    <!-- <button @click="showModal">shoModal</button>
-    <button @click="setComponent">component</button> -->
+  {{message}}
+    <!-- <button @click="showModal">shoModal</button> -->
+    <!-- <button @click="setComponent">component</button> -->
   </div>
 </template>
 
 <script>
-import Vue from 'vue'
-import { mapState } from 'vuex'
 import Modal from '@/components/Modal'
 import BaseComponent from '@/components/BaseComponent'
 
 export default {
   name: 'ModalContainer',
   components: {Modal},
+  data: () => ({
+    modal: {}
+  }),
+  props: {
+    message: {
+      type: String,
+      default: 'ciao'
+    }
+  },
   computed: {
-    ...mapState({
-      modal: 'modal', // the same as state => state.modal
-    }),
+
   },
   methods: {
-    showModal() {
+    sayHi() {
+      alert('hi')
+    },
+    /* showModal() {
       this.$store.dispatch('modal/show')
     },
     setComponent() {
@@ -59,10 +67,10 @@ export default {
         // footer: '',
         // onOk:()=>console.log(123),
       })
-    },
+    }, */
     onHidden() {
       // reset the modal after it is hidden
-      this.$store.dispatch('modal/reset')
+      this.$emit('reset')
     },
     onCancelClicked() {
       if(typeof this.modal.onCancel == 'function') this.modal.onCancel()

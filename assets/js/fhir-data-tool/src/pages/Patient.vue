@@ -1,6 +1,6 @@
 <template>
   <div class="home-page">
-    <FhirForm class="fhir-form"></FhirForm>
+    <FhirForm class="fhir-form" resource_type="Patient" method_name="read"></FhirForm>
     <!-- print patient data -->
     <table v-if="Object.keys(data).length" class="table table-striped table-bordered">
       <thead>

@@ -1,5 +1,6 @@
 <template>
   <section class="app">
+    <button @click="test">test</button>
     <router-view/>
   </section>
 </template>
@@ -13,6 +14,9 @@ import API from '@/API/plugin'
 Vue.use(API)
 
 import App from '@/App.vue'
+
+import Modal from '@/plugins/Modal'
+Vue.use(Modal)
 
 
 export default {
@@ -31,6 +35,21 @@ export default {
           // hide the modal when loading is complete
           onDone: () => this.$store.dispatch('modal/hide')
         },
+      })
+    },
+    test() {
+      const body_component = () => import('@/components/BaseComponent')
+      console.log(body_component)
+      body_component.store = this.$store
+
+      this.$RcModal.fire({
+        component: body_component,
+        // body_properties: {msg:'ciaociao'},
+        body: 1234,
+        confirm_text: 'download',
+        onConfirm: () => console.log(123)
+        // footer: '',
+        // onOk:()=>console.log(123),
       })
     }
   },

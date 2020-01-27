@@ -6,7 +6,7 @@
         <label for="mrn" class="mr-2">Medical Record Number</label>
         <input type="text" class="form-control" id="mrn" v-model="mrn" placeholder="MRN">
       </div>
-      
+      {{resource_type}}
       <slot></slot>
       
       <div class="buttons my-2">
@@ -35,6 +35,16 @@ export default {
   data: () => ({
     loading: false,
   }),
+  props: {
+    method_name: {
+      type: String,
+      default: ''
+    },
+    resource_type: {
+      type: String,
+      default: ''
+    },
+  },
   computed: {
     mrn: {
       get() {
@@ -47,31 +57,18 @@ export default {
     canSubmit() {
       return Boolean(this.mrn.trim())
     },
+    /**
+     * create an interaction with a resource type and a method name
+     */
     interaction() {
-      const {name:route_name} = this.$route
-      switch (route_name) {
-        case 'patient':
-          return new Interaction('read', 'Patient')
-          break;
-        case 'medication-order':
-          return new Interaction('search', 'MedicationOrder')
-          break;
-        case 'observation':
-          return new Interaction('search', 'Observation')
-          break;
-        case 'condition':
-          return new Interaction('search', 'Condition')
-          break;
-        default:
-          break;
-      }
-    }
+      if(!this.method_name || !this.resource_type) return false
+      const interaction = new Interaction(this.resource_type, this.method_name)
+      return interaction
+    },
   },
   methods: {
     async onSubmit() {
-      const interaction = this.interaction
-      console.log(interaction)
-      if(!interaction) {
+      if(!this.interaction) {
         alert('invalid interaction')
         return
       }
@@ -79,6 +76,7 @@ export default {
       /* const all_params = this.$store.state.endpoint.params // global params object. contains params for every endpoint
       const params = all_params[endpoint] || [] // get extra params for the current endpoint */
       const params = this.$route.query
+      const interaction = this.interaction
       try {
         this.loading = true
         const resource = await this.$store.dispatch('resource/fetchResource', {interaction, mrn, params})

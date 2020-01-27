@@ -1,6 +1,6 @@
 <template>
   <div class="home-page">
-    <FhirForm class="fhir-form">
+    <FhirForm class="fhir-form" resource_type="MedicationOrder" method_name="search">
       <MedicationOrderFields />
     </FhirForm>
     <table class="table table-striped table-bordered" v-if="entries.length">

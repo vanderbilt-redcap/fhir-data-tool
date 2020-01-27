@@ -1,6 +1,6 @@
 <template>
   <div class="home-page">
-    <FhirForm class="fhir-form">
+    <FhirForm class="fhir-form" resource_type="Observation" method_name="search">
       <ObservationFields />
     </FhirForm>
 

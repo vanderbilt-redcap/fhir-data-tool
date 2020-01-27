@@ -1,6 +1,6 @@
 <template>
   <div >
-    <FhirForm class="fhir-form"></FhirForm>
+    <FhirForm class="fhir-form" resource_type="Condition" method_name="search"></FhirForm>
 
     <div v-if="rows.length>0">
       <table class="table table-striped table-bordered">

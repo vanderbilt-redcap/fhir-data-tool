@@ -142,56 +142,72 @@ namespace REDCap\FhirDataTool\App\Models
                 }
                 return $patient_id;
             } catch (\Exception $e) {
-                throw new \FhirException($message=$e->getMessage(), $code=$e->getCode());
+                throw new \FhirException($message=$e->getMessage(), $code=$e->getCode(), $e);
             }
         }
 
+        /**
+         * get a FHIR resource
+         *
+         * @param string $resource_type Patient, Observation, MedicationOrder...
+         * @param string $interaction seacrh,read...
+         * @param mixed $params could by an ID for read interactions or an array of parameters
+         * @return void
+         */
         public function getResource($resource_type, $interaction, $params)
         {
-            $access_token = self::getAccessToken();
-            $endpoint = FhirEndpoint::getInstance($resource_type, $access_token);
-            
-            switch (strtolower($interaction)) {
-                case FhirEndpoint::INTERACTION_READ:
-                    $data = $endpoint->read($id=$params);
+            try {
+                $access_token = self::getAccessToken();
+                $endpoint = FhirEndpoint::getInstance($resource_type, $access_token);
+                
+                switch (strtolower($interaction)) {
+                    case FhirEndpoint::INTERACTION_READ:
+                        $data = $endpoint->read($id=$params);
+                        break;
+                    case FhirEndpoint::INTERACTION_SEARCH:
+                        $data = $endpoint->search($params);
+                        break;
+                    // this interactions are not available in REDCap
+                    case FhirEndpoint::INTERACTION_UPDATE:
+                    case FhirEndpoint::INTERACTION_DELETE:
+                    case FhirEndpoint::INTERACTION_CREATE:
+                    case FhirEndpoint::INTERACTION_HISTORY:
+                    case FhirEndpoint::INTERACTION_TRANSACTION:
+                    case FhirEndpoint::INTERACTION_OPERATION:
+                        throw new \Exception("Interactions of type '{$interaction}' are not available in REDCap", 1);
+                        break;
+                    default:
+                        throw new \Exception("Erreo: you must specify an interaction", 1);
                     break;
-                case FhirEndpoint::INTERACTION_SEARCH:
-                    $data = $endpoint->search($params);
-                    break;
-                // this interactions are not available in REDCap
-                case FhirEndpoint::INTERACTION_UPDATE:
-                case FhirEndpoint::INTERACTION_DELETE:
-                case FhirEndpoint::INTERACTION_CREATE:
-                case FhirEndpoint::INTERACTION_HISTORY:
-                case FhirEndpoint::INTERACTION_TRANSACTION:
-                case FhirEndpoint::INTERACTION_OPERATION:
-                    throw new \Exception("Interactions of type '{$interaction}' are not available in REDCap", 1);
-                    break;
-                default:
-                    throw new \Exception("Erreo: you must specify an interaction", 1);
-                break;
+                }
+                $resource = $this->parseData($data);
+                return $resource;
+            } catch (\Exception $e) {
+                throw new \FhirException($message=$e->getMessage(), $code=$e->getCode(), $e);
             }
-            $resource = $this->parseData($data);
-            return $resource;
         }
 
         public function getResourceByMrn($mrn, $resource_type, $interaction, $params=array())
         {
-            $access_token = self::getAccessToken($mrn);
-            $patient_id = $this->getPatientId($mrn, $access_token);
-
-            switch (strtolower($interaction)) {
-                case FhirEndpoint::INTERACTION_READ:
-                    $params = $patient_id;
+            try {
+                $access_token = self::getAccessToken($mrn);
+                $patient_id = $this->getPatientId($mrn, $access_token);
+                
+                switch (strtolower($interaction)) {
+                    case FhirEndpoint::INTERACTION_READ:
+                        $params = $patient_id;
                     break;
-                case FhirEndpoint::INTERACTION_SEARCH:
-                    $params['patient'] = $patient_id;
+                    case FhirEndpoint::INTERACTION_SEARCH:
+                        $params['patient'] = $patient_id;
                     break;
-                default:
+                    default:
                     break;
+                }
+                $resource = $this->getResource($resource_type, $interaction, $params);
+                return $resource;
+            } catch (\Exception $e) {
+                throw new \FhirException($message=$e->getMessage(), $code=$e->getCode(), $e);
             }
-            $resource = $this->getResource($resource_type, $interaction, $params);
-            return $resource;
             
             /**
              * check for documentreference resources and save related files
