@@ -7,7 +7,6 @@ import resource from '@/store/modules/resource'
 import mappings from '@/store/modules/mappings'
 import fhir_metadata from '@/store/modules/fhir_metadata'
 import project from '@/store/modules/project'
-import modal from '@/store/modules/modal'
 import token from '@/store/modules/token'
 
 Vue.use(Vuex)
@@ -24,7 +23,6 @@ const store = new Vuex.Store({
         fhir_metadata,
         token,
         project,
-        modal,
     }
 })
 

@@ -10,12 +10,12 @@
 <script>
 import Vue from 'vue'
 
-Vue.component(
+/* Vue.component(
   'async-webpack-example',
   // The `import` function returns a Promise.
   () => import('@/components/BaseComponent')
-)
-Vue.component('test', {
+) */
+/* Vue.component('test', {
 
     // The `import` function returns a Promise.
   render: (createElement) => {
@@ -30,7 +30,7 @@ Vue.component('test', {
       required: true
     }
   }
-})
+}) */
 
 export default {
   name: 'base-component',

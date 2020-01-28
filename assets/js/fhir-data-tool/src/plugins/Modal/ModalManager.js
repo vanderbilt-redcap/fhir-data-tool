@@ -13,12 +13,20 @@ const initialState = {
     confirm_text: 'Ok',
 }
 
-class Modal {
+class ModalManager {
 
     constructor(component) {
-        this.state = initialState
-        console.log('this is a modal', component)
+        this.state = {...initialState}
+
         component.modal = this.state
+
+        /**
+         * listen for reset event
+         */
+        component.$on('reset', () => {
+            this.reset()
+        })
+        this.component = component
     }
 
     fire(config) {
@@ -30,13 +38,13 @@ class Modal {
         const state_keys = Object.keys(initialState)
         for (let [key, value] of Object.entries(properties)) {
             if(state_keys.indexOf(key)>=0) {
-                this.state[key] = value
+                this.component.modal[key] =  value
             }
         }
     }
 
     reset() {
-        this.state = initialState
+        this.setProperties(initialState)
     }
 
     show() {
@@ -48,4 +56,4 @@ class Modal {
     }
 }
 
-export default Modal
+export default ModalManager

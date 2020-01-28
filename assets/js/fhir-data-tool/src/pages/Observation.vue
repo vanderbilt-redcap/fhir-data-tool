@@ -243,7 +243,7 @@ export default {
     showPreview() {
       const component = () => import('@/components/DownloadPreview')
       const lines = this.getLinesToExport()
-      this.$store.dispatch('modal/fire',{
+      this.$RcModal.fire({
         component,
         component_properties: {
           lines

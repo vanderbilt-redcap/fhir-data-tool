@@ -23,8 +23,6 @@
 </template>
 
 <script>
-import Vue from 'vue'
-import DataLoader from '@/components/DataLoader'
 
 export default {
   name: 'Modal',
@@ -69,7 +67,6 @@ export default {
       this.close()
     },
     close() {
-      this.$store.dispatch('modal/hide')
       this.$emit('close')
     },
     afterLeave() {

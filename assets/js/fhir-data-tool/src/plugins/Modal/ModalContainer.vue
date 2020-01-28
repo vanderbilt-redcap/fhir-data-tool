@@ -5,6 +5,7 @@
       :prevent_closing="modal.prevent_closing"
       :cancel_text="modal.cancel_text"
       :confirm_text="modal.confirm_text"
+      @close="onClose"
       @hidden="onHidden"
       @cancel="onCancelClicked"
       @confirm="onConfirmClicked"
@@ -23,15 +24,13 @@
       </template>
     </Modal>
 
-  {{message}}
     <!-- <button @click="showModal">shoModal</button> -->
     <!-- <button @click="setComponent">component</button> -->
   </div>
 </template>
 
 <script>
-import Modal from '@/components/Modal'
-import BaseComponent from '@/components/BaseComponent'
+import Modal from './Modal'
 
 export default {
   name: 'ModalContainer',
@@ -39,23 +38,13 @@ export default {
   data: () => ({
     modal: {}
   }),
-  props: {
-    message: {
-      type: String,
-      default: 'ciao'
+  watch: {
+    modal(value) {
+      console.log(value)
     }
   },
-  computed: {
-
-  },
   methods: {
-    sayHi() {
-      alert('hi')
-    },
-    /* showModal() {
-      this.$store.dispatch('modal/show')
-    },
-    setComponent() {
+    /* setComponent() {
       const body_component = () => import('@/components/BaseComponent')
 
       this.$store.dispatch('modal/fire', {
@@ -68,9 +57,14 @@ export default {
         // onOk:()=>console.log(123),
       })
     }, */
+    onClose() {
+      console.log('close')
+      this.modal.show = false
+    },
     onHidden() {
       // reset the modal after it is hidden
       this.$emit('reset')
+      console.log('hidden')
     },
     onCancelClicked() {
       if(typeof this.modal.onCancel == 'function') this.modal.onCancel()
