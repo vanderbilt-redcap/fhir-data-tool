@@ -158,7 +158,8 @@ namespace REDCap\FhirDataTool\App\Models
         {
             try {
                 $access_token = self::getAccessToken();
-                $endpoint = FhirEndpoint::getInstance($resource_type, $access_token);
+                $base_URL = \FhirEhr::getFhirEndpointBaseUrl();
+                $endpoint = FhirEndpoint::getInstance($resource_type, $base_URL, $access_token);
                 
                 switch (strtolower($interaction)) {
                     case FhirEndpoint::INTERACTION_READ:

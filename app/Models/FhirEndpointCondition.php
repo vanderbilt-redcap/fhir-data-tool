@@ -29,6 +29,5 @@ namespace REDCap\FhirDataTool\App\Models
             $filtered_params = $this->filterParams($params, $accepted_keys);
             return parent::search($filtered_params);
         }
-
     }
 }
