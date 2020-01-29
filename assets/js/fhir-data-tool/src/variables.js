@@ -32,7 +32,7 @@ export const menu_links = [
     // { label:'Project Info', to: {name: 'project_info'} },
 ]
 
-export const date_format = 'YYYY-MM-DD hh:mm a'
+export const date_format = 'YYYY-MM-DD HH:mm'
 
 /**
  * codes to ignore from results

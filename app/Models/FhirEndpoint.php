@@ -99,6 +99,54 @@ namespace REDCap\FhirDataTool\App\Models
         }
 
         /**
+         * the query parameters in a GET request can have multiple formats.
+         * in FHIR we usually use only comma and repeat.
+         * the 'repeat' format appears to be the most compatible
+         * 
+         */
+        const QUERY_ARRAY_FORMAT_REPEAT = 'repeat';
+        const QUERY_ARRAY_FORMAT_COMMA = 'comma';
+        const QUERY_ARRAY_FORMAT_BRACKETS = 'brackets';
+        const QUERY_ARRAY_FORMAT_INDICES = 'indices';
+        /**
+         * alternative function for http_build_query.
+         * uses the 'repeat' format instead of the 'brackets' format
+         * provided by the standard http_build_query function
+         *
+         * @param array $params
+         * @return string
+         */
+        public static function buildQuery($params, $array_format = self::QUERY_ARRAY_FORMAT_REPEAT)
+        {
+            $query_strings = array();
+            foreach ($params as $key => $value) {
+                if(is_array($value))
+                {
+                    switch ($array_format) {
+                        case self::QUERY_ARRAY_FORMAT_COMMA:
+                            $joined_value = implode(', ', $value); // trasform array in comma separated values (FHIR compatible)
+                            $query_strings[] = "{$key}=$joined_value";
+                            break;
+                        case self::QUERY_ARRAY_FORMAT_REPEAT:
+                            foreach ($value as $sub_value) $query_strings[] = "{$key}={$sub_value}";
+                            break;
+                        case self::QUERY_ARRAY_FORMAT_BRACKETS:
+                            // 2020-01-28 TODO. not needed for now
+                        case self::QUERY_ARRAY_FORMAT_INDICES:
+                            // 2020-01-28 TODO. not needed for now
+                        default:
+                            break;
+                    }
+                }else
+                {
+                    $query_strings[] = "{$key}={$value}";
+                }
+            }
+            $query_string = implode('&', $query_strings); // join all params
+            return $query_string;
+        }
+
+        /**
          * return the url for the search interaction
          * method: GET
          * 
@@ -107,7 +155,8 @@ namespace REDCap\FhirDataTool\App\Models
          */
         public function search($params)
         {
-            $query_params = http_build_query($params);
+            // $query_params = http_build_query($params);
+            $query_params = self::buildQuery($params);
             $url = "{$this->resource_url}/?{$query_params}";
             $data = $this->getFhirData($url, $this->access_token);
             return json_decode($data);
@@ -207,7 +256,6 @@ namespace REDCap\FhirDataTool\App\Models
             foreach ($params as $key => $value) {
                 if(empty($value)) continue;
                 if(!in_array($key,$accepted_params)) continue;
-                if(is_array($value)) $value = implode(', ', $value); // trasform array in comma separated values (FHIR compatible)
                 $filtered_params[$key] = $value;
             }
 
