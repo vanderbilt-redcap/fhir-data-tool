@@ -24,7 +24,6 @@ namespace REDCap\FhirDataTool\App\Controllers
         public function __construct()
         {
             parent::__construct();
-            $this->model = new FhirDataTool();
         }
 
         /**

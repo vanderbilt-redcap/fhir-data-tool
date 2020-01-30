@@ -178,7 +178,7 @@ namespace REDCap\FhirDataTool\App\Models
                         throw new \Exception("Interactions of type '{$interaction}' are not available in REDCap", 1);
                         break;
                     default:
-                        throw new \Exception("Erreo: you must specify an interaction", 1);
+                        throw new \Exception("Error: you must specify an interaction", 1);
                     break;
                 }
                 $resource = $this->parseData($data);

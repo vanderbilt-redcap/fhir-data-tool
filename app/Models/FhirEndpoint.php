@@ -77,7 +77,7 @@ namespace REDCap\FhirDataTool\App\Models
          *
          * @param object $field_info
          */
-        public function __construct($base_URL, $access_token)
+        public function __construct($base_URL, $access_token=null)
         {
             $this->base_URL = $base_URL;
             $this->resource_url = $this->base_URL.static::RESOURCE_TYPE;
@@ -289,6 +289,17 @@ namespace REDCap\FhirDataTool\App\Models
         }
 
         /**
+         * set the access token for the endpoint
+         *
+         * @param string $access_token
+         * @return void
+         */
+        public function setAccessToken($access_token)
+        {
+            $this->access_token = $access_token;
+        }
+
+        /**
          * get an enpoint instance using a resource type
          *
          * @param string $resource_type
@@ -296,7 +307,7 @@ namespace REDCap\FhirDataTool\App\Models
          * @param string $access_token
          * @return FhirEndpoint
          */
-        public static function getInstance($resource_type, $base_URL, $access_token)
+        public static function getInstance($resource_type, $base_URL, $access_token=null)
         {
             $ClassName = __NAMESPACE__."\FhirEndpoint{$resource_type}";
             if(!class_exists($ClassName)) throw new \Exception("Error: cannot instantiate class {$ClassName}", 1);
