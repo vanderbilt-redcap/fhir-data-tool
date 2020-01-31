@@ -28,6 +28,18 @@ namespace REDCap\FhirDataTool\App\Models
          */
         const RESOURCE_TYPE = null;
 
+        /** 
+         * Map the FHIR endpoint category to the name of the query string "code" parameter.
+         * Note: Most categories do not have this structure.
+         */
+        const CODE_PARAMETER_NAME = null;
+
+	    /**
+         * Map the FHIR endpoint category to the name of the query string "date" parameter to limit the request's time period.
+         * Note: The 'Patient', 'Device', and 'FamilyMemberHistory' categories do not have this structure.
+         */
+        const DATE_PARAMETER_NAME = null;
+
         /**
          * interaction types
          * 
@@ -99,16 +111,6 @@ namespace REDCap\FhirDataTool\App\Models
         }
 
         /**
-         * the query parameters in a GET request can have multiple formats.
-         * in FHIR we usually use only comma and repeat.
-         * the 'repeat' format appears to be the most compatible
-         * 
-         */
-        const QUERY_ARRAY_FORMAT_REPEAT = 'repeat';
-        const QUERY_ARRAY_FORMAT_COMMA = 'comma';
-        const QUERY_ARRAY_FORMAT_BRACKETS = 'brackets';
-        const QUERY_ARRAY_FORMAT_INDICES = 'indices';
-        /**
          * alternative function for http_build_query.
          * uses the 'repeat' format instead of the 'brackets' format
          * provided by the standard http_build_query function
@@ -116,31 +118,13 @@ namespace REDCap\FhirDataTool\App\Models
          * @param array $params
          * @return string
          */
-        public static function buildQuery($params, $array_format = self::QUERY_ARRAY_FORMAT_REPEAT)
+        public static function buildQuery($params)
         {
             $query_strings = array();
+            $and_logic_keys = array('dateWritten', 'date'); //dates need to use the format QUERY_ARRAY_FORMAT_REPEAT (AND logic)
             foreach ($params as $key => $value) {
-                if(is_array($value))
-                {
-                    switch ($array_format) {
-                        case self::QUERY_ARRAY_FORMAT_COMMA:
-                            $joined_value = implode(', ', $value); // trasform array in comma separated values (FHIR compatible)
-                            $query_strings[] = "{$key}=$joined_value";
-                            break;
-                        case self::QUERY_ARRAY_FORMAT_REPEAT:
-                            foreach ($value as $sub_value) $query_strings[] = "{$key}={$sub_value}";
-                            break;
-                        case self::QUERY_ARRAY_FORMAT_BRACKETS:
-                            // 2020-01-28 TODO. not needed for now
-                        case self::QUERY_ARRAY_FORMAT_INDICES:
-                            // 2020-01-28 TODO. not needed for now
-                        default:
-                            break;
-                    }
-                }else
-                {
-                    $query_strings[] = "{$key}={$value}";
-                }
+                $array_format = in_array($key, $and_logic_keys) ? \UrlQueryBuilder::QUERY_ARRAY_FORMAT_REPEAT : \UrlQueryBuilder::QUERY_ARRAY_FORMAT_COMMA;
+                $query_strings[] = \UrlQueryBuilder::getQueryString($key, $value, $array_format);
             }
             $query_string = implode('&', $query_strings); // join all params
             return $query_string;
@@ -151,7 +135,7 @@ namespace REDCap\FhirDataTool\App\Models
          * method: GET
          * 
          * @param array $params
-         * @return string
+         * @return array
          */
         public function search($params)
         {
@@ -167,7 +151,7 @@ namespace REDCap\FhirDataTool\App\Models
          * method: PUT
          * 
          * @param string $id
-         * @return string
+         * @return void
          */
         public function update($id)
         {
@@ -180,7 +164,7 @@ namespace REDCap\FhirDataTool\App\Models
          * method: DELETE
          * 
          * @param string $id
-         * @return string
+         * @return void
          */
         public function delete($id)
         {
@@ -193,7 +177,7 @@ namespace REDCap\FhirDataTool\App\Models
          * method: GET
          * 
          * @param string $id
-         * @return string
+         * @return void
          */
         public function history($id)
         {
@@ -205,7 +189,7 @@ namespace REDCap\FhirDataTool\App\Models
          * return the url for the create interaction
          * method: POST
          * 
-         * @return string
+         * @return void
          */
         public function create()
         {
@@ -217,7 +201,7 @@ namespace REDCap\FhirDataTool\App\Models
          * return the url for the transaction interaction
          * method: POST
          * 
-         * @return string
+         * @return void
          */
         public function transaction()
         {
@@ -231,7 +215,7 @@ namespace REDCap\FhirDataTool\App\Models
          * 
          * @param string $id
          * @param string $operation_name
-         * @return string
+         * @return void
          */
         public function operation($id, $operation_name)
         {
@@ -246,7 +230,7 @@ namespace REDCap\FhirDataTool\App\Models
          *
          * @param array $params 
          * @param array $accepted_keys additional accepted param keys
-         * @return void
+         * @return array
          */
         protected function filterParams($params, $accepted_keys)
         {
@@ -318,90 +302,53 @@ namespace REDCap\FhirDataTool\App\Models
         /**
          * build the endpoint URL
          *
-         * @param string $base_url
-         * @param string $patient_id
-         * @param array $properties
-         * @return void
+         * @param string $resource_type FHIR resource type
+         * @param array $fields REDCap fields
+         * @return array
          */
-        private function buildURL($base_url, $patient_id, $properties)
+        public function getQueryParams($patient_id, $properties)
+        {   
+            $params = array();
+            $params['patient'] = urlencode($patient_id); // valid for all search requests
+            if (static::DATE_PARAMETER_NAME !== null)
+            {
+                // Get param names, which may differ for endpoints
+                $dateParamName = static::DATE_PARAMETER_NAME;
+                $date_range = $this->getDateRangeQueryParams($properties['minDate'], $properties['maxDate']);
+                if(!empty($date_range)) $params[$dateParamName] = $date_range;
+            }
+            return $params;
+        }
+
+        /**
+         * Get the min and max date parameters.
+         * check the 'fhir_convert_timestamp_from_gmt' system setting and performs
+         * additions/sottactions accordingly
+         *
+         * @param string $date_min
+         * @param string $date_max
+         * @return array
+         */
+        protected function getDateRangeQueryParams($date_min, $date_max)
         {
             global $fhir_convert_timestamp_from_gmt;
-            
-            $url = '';
 
-            switch ($this->name) {
-                case 'Patient':
-                    // Set URL
-                    $url = $base_url . "$this->name/$patient_id";
-                    break;
-                case 'MedicationOrder':
-                    // If "Medications" endpoint for "Active medications list", then set specific URL for it
-                    // Set URL
-                    $status_list = array(
-                        \FhirResourceMedicationOrder::STATUS_ACTIVE,
-                        \FhirResourceMedicationOrder::STATUS_COMPLETED,
-                        \FhirResourceMedicationOrder::STATUS_ON_HOLD,
-                        \FhirResourceMedicationOrder::STATUS_STOPPED,
-                    );
-                    $requested_status = array();
-                    // build a regexp that matches all available medication status
-                    $regExp = sprintf("/^(%s)-medications-list\$/i", implode('|', $status_list));
-                    foreach ($properties['fields'] as $field) {
-                        preg_match($regExp, $field, $matches);
-                        if($matches)
-                        {
-                            $requested_status[] = $matches[1]; // get the matched status
-                        }
-                    }
-                    $status = implode(',', $requested_status);
-                    $url = $base_url . "$this->name?patient="  . urlencode($patient_id) . "&status=".$status;
-                    break;
-                case 'Condition':
-                    // If "Condition" endpoint for "Problem list and health concerns", then set specific URL for it
-                    // Set URL
-                    $url = $base_url . "$this->name?patient=" . urlencode($patient_id); // . "&category=problem,complaint,symptom,finding,diagnosis,health-concern";
-                    break;
-                case 'AllergyIntolerance':
-                    // If "AllergyIntolerance" endpoint for "Allergies", then set specific URL for it
-                    // Set URL
-                    $url = $base_url . "$this->name?patient=" . urlencode($patient_id);
-                    break;
-                case 'Observation':
-                default:
-                    if (isset(\FhirEhr::$fhirEndpointQueryStringCodeParameter[$this->name])) {
-                        // Get param names, which may differ for endpoints
-                        $dateParamName = \FhirEhr::$fhirEndpointQueryStringDateParameter[$this->name];
-                        $codeParamName = \FhirEhr::$fhirEndpointQueryStringCodeParameter[$this->name];
-                        // Set min/max dates
-                        $minDate = $maxDate = "";
-                        if (!($properties['minDate'] == '' || $dateParamName == '')) {
-                            // If dealing with GMT conversion, open window of time by one extra day to compensate for local time offset from GMT				
-                            if ($fhir_convert_timestamp_from_gmt == '1') {
-                                $properties['minDate'] = date(self::FHIR_DATETIME_FORMAT, strtotime($properties['minDate'] . ' - 1 days'));
-                            }
-                            // Set param
-                            // $minDate = "&{$dateParamName}=gt" . str_replace("-", "", $properties['minDate']); // TJ commented out
-                            $minDate = "&{$dateParamName}=gt" . $properties['minDate']; // TJ according to the HL7 FHIR convention, date params SHOULD be hyphentated, no?
-                        }
-                        if (!($properties['maxDate'] == '' || $dateParamName == '')) {
-                            // If dealing with GMT conversion, open window of time by one extra day to compensate for local time offset from GMT
-                            if ($fhir_convert_timestamp_from_gmt == '1') {
-                                $properties['maxDate'] = date(self::FHIR_DATETIME_FORMAT, strtotime($properties['maxDate'] . ' + 1 days'));
-                            }
-                            // Set param
-                            // $maxDate = "&{$dateParamName}=lt" . str_replace("-", "", $properties['maxDate']); // TJ commented out - see comment for "gt" above
-                            $maxDate = "&{$dateParamName}=lt" . $properties['maxDate'];
-                        }
-                        // add the coding system in front of the code. this is ignored by Epic but required in cerner
-                        $properties['fields'] = array_map(function($val) { return 'http://loinc.org|'.$val;} , $properties['fields']);
-                        // Set fields, codes, etc.
-                        $fields = empty($properties['fields']) ? "" : "&{$codeParamName}=" . urlencode(implode(",", $properties['fields']));
-                        // Set URL
-                        $url = \FhirEhr::getFhirEndpointBaseUrl() . "$this->name?patient=" . urlencode($patient_id) . $minDate . $maxDate . $fields;
-                    }
-                    break;
+            $params = array();
+            if (!empty($date_min)) {
+                // If dealing with GMT conversion, open window of time by one extra day to compensate for local time offset from GMT				
+                if ($fhir_convert_timestamp_from_gmt == '1') {
+                    $date_min = date(self::FHIR_DATETIME_FORMAT, strtotime($date_min . ' - 1 days'));
+                }
+                $params['date_min'] = "gt{$date_min}";
             }
-            return $url;
+            if (!empty($date_max)) {
+                // If dealing with GMT conversion, open window of time by one extra day to compensate for local time offset from GMT
+                if ($fhir_convert_timestamp_from_gmt == '1') {
+                    $date_max = date(self::FHIR_DATETIME_FORMAT, strtotime($date_max . ' + 1 days'));
+                }
+                $params['date_max'] = "lt{$date_max}";
+            }
+            return $params;
         }
         
     }

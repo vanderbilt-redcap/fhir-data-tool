@@ -6,6 +6,22 @@ namespace REDCap\FhirDataTool\App\Models
     class FhirEndpointCondition extends FhirEndpoint
     {
         const RESOURCE_TYPE = 'Condition';
+        
+        /**
+         * Map the FHIR endpoint category to the name of the query string "code" parameter.
+         * Note: Most categories do not have this structure.
+         * 
+         * 'category' or 'clinicalStatus'
+         * Problem List as 'category=problem,complaint,symptom,finding,diagnosis,health-concern'
+         * @see http://argonautwiki.hl7.org/index.php?title=Problems_and_Health_Concerns
+         */
+        const CODE_PARAMETER_NAME = 'category';
+
+        /** 
+         * Map the FHIR endpoint category to the name of the query string "date" parameter to limit the request's time period.
+         * Note: The 'Patient', 'Device', and 'FamilyMemberHistory' categories do not have this structure.
+         */
+        const DATE_PARAMETER_NAME = 'onset';
 
         public function search($params)
         {
