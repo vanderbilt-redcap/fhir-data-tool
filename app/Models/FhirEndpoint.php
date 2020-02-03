@@ -55,6 +55,23 @@ namespace REDCap\FhirDataTool\App\Models
         const INTERACTION_OPERATION = 'operation';
 
         /**
+         * list of the allowed interactions
+         * for an endpoint
+         *
+         * @var array
+         */
+        public static $allowed_interactions = array(
+            self::INTERACTION_READ,
+            self::INTERACTION_UPDATE,
+            self::INTERACTION_DELETE,
+            self::INTERACTION_CREATE,
+            self::INTERACTION_SEARCH,
+            self::INTERACTION_HISTORY,
+            self::INTERACTION_TRANSACTION,
+            self::INTERACTION_OPERATION,
+        );
+
+        /**
          * datetime in FHIR compatible format
          * 
          * @see https://www.hl7.org/fhir/datatypes.html#dateTime
@@ -95,19 +112,95 @@ namespace REDCap\FhirDataTool\App\Models
             $this->resource_url = $this->base_URL.static::RESOURCE_TYPE;
             $this->access_token = $access_token;
         }
+        
+        public function getReadUrl($id)
+        {
+            return "{$this->resource_url}/{$id}";
+        }
+        
+        public function getSearchUrl($query_string)
+        {
+            return "{$this->resource_url}/?{$query_string}";
+        }
+        
+        public function getUpdateUrl($id)
+        {
+            return "{$this->resource_url}/{$id}";
+        }
+        
+        public function getDeleteUrl($id)
+        {
+             return "{$this->resource_url}/{$id}";
+        }
+        
+        public function getCreateUrl()
+        {
+            return "{$this->resource_url}/";
+        }
+        
+        public function getHistoryUrl($id)
+        {
+            return "{$this->resource_url}/{$id}/_history";
+        }
+        
+        public function getTransactionUrl()
+        {
+            return $this->base_URL;
+        }
+        
+        public function getOperationUrl($id, $operation_name)
+        {
+            return "{$this->resource_url}/{$id}/{$operation_name}";
+        }
 
         /**
-         * return the url for the read interaction
-         * method: GET
-         * 
-         * @param string $id
+         * helper method to get the URL for an interaction
+         *
+         * @param string $interaction
          * @return string
          */
-        public function read($id)
+        public function getURL($interaction)
         {
-           $url = "{$this->resource_url}/{$id}";
-           $data = $this->getFhirData($url, $this->access_token);
-           return json_decode($data);
+            $params = func_get_args(); // get the params dynamically
+            $url = '';
+
+            switch ($interaction) {
+                case self::INTERACTION_READ:
+                    $id = $params[1] ?: null;
+                    $url = $this->getReadUrl($id);
+                    break;
+                case self::INTERACTION_SEARCH:
+                    $query_string = $params[1] ?: null;
+                    $url = $this->getSearchUrl($query_string);
+                    break;
+                case self::INTERACTION_UPDATE:
+                    $id = $params[1] ?: null;
+                    $url = $this->getUpdateUrl($id);
+                    break;
+                case self::INTERACTION_DELETE:
+                    $id = $params[1] ?: null;
+                    $url = $this->getDeleteUrl($id);
+                    break;
+                case self::INTERACTION_CREATE:
+                    $url = $this->getCreateUrl();
+                    break;
+                case self::INTERACTION_HISTORY:
+                    $id = $params[1] ?: null;
+                    $url = $this->getHistoryUrl($id);
+                    break;
+                case self::INTERACTION_TRANSACTION:
+                    $url = $this->getTransactionUrl();
+                    break;
+                case self::INTERACTION_OPERATION:
+                    $id = $params[1] ?: null;
+                    $operation_name = $params[2] ?: null;
+                    $url = $this->getOperationUrl($id, $operation_name);
+                    break;
+                default:
+                    $url = $this->base_URL;
+                    break;
+            }
+            return $url;
         }
 
         /**
@@ -118,30 +211,44 @@ namespace REDCap\FhirDataTool\App\Models
          * @param array $params
          * @return string
          */
-        public static function buildQuery($params)
+        /* public static function buildQuery($params)
         {
             $query_strings = array();
-            $and_logic_keys = array('dateWritten', 'date'); //dates need to use the format QUERY_ARRAY_FORMAT_REPEAT (AND logic)
-            foreach ($params as $key => $value) {
+            foreach ($params as $settings) {
+                $key = $settings['key'] ?: '';
+                $value = $settings['value'] ?: '';
+                $logic = $settings['logic'] ?: null;
                 $array_format = in_array($key, $and_logic_keys) ? \UrlQueryBuilder::QUERY_ARRAY_FORMAT_REPEAT : \UrlQueryBuilder::QUERY_ARRAY_FORMAT_COMMA;
                 $query_strings[] = \UrlQueryBuilder::getQueryString($key, $value, $array_format);
             }
             $query_string = implode('&', $query_strings); // join all params
             return $query_string;
+        } */
+
+        /**
+         * return the url for the read interaction
+         * method: GET
+         * 
+         * @param string $id
+         * @return string
+         */
+        public function read($id)
+        {
+            $url = $this->getReadUrl($id);
+            $data = $this->getFhirData($url, $this->access_token);
+            return json_decode($data);
         }
 
         /**
          * return the url for the search interaction
          * method: GET
          * 
-         * @param array $params
+         * @param string $params
          * @return array
          */
-        public function search($params)
+        public function search($query_string)
         {
-            // $query_params = http_build_query($params);
-            $query_params = self::buildQuery($params);
-            $url = "{$this->resource_url}/?{$query_params}";
+            $url = $this->getSearchUrl($query_string);
             $data = $this->getFhirData($url, $this->access_token);
             return json_decode($data);
         }
@@ -155,7 +262,7 @@ namespace REDCap\FhirDataTool\App\Models
          */
         public function update($id)
         {
-            $url = "{$this->resource_url}/{$id}";
+            $url = $this->getUpdateUrl($id);
             return;
         }
 
@@ -168,7 +275,19 @@ namespace REDCap\FhirDataTool\App\Models
          */
         public function delete($id)
         {
-            $url = "{$this->resource_url}/{$id}";
+            $url = $this->getDeleteUrl($id);
+            return;
+        }
+
+        /**
+         * return the url for the create interaction
+         * method: POST
+         * 
+         * @return void
+         */
+        public function create()
+        {
+            $url = $this->getCreateUrl();
             return;
         }
 
@@ -181,22 +300,10 @@ namespace REDCap\FhirDataTool\App\Models
          */
         public function history($id)
         {
-            $url = "{$this->resource_url}/{$id}/_history";
+            $url = $this->getHistoryUrl($id);
             return;
         }
 
-        /**
-         * return the url for the create interaction
-         * method: POST
-         * 
-         * @return void
-         */
-        public function create()
-        {
-            $url = "{$this->resource_url}/";
-            return;
-        }
-        
         /**
          * return the url for the transaction interaction
          * method: POST
@@ -205,7 +312,7 @@ namespace REDCap\FhirDataTool\App\Models
          */
         public function transaction()
         {
-            $url = $this->base_URL;
+            $url = $this->getTransactionUrl();
             return;
         }
 
@@ -219,7 +326,7 @@ namespace REDCap\FhirDataTool\App\Models
          */
         public function operation($id, $operation_name)
         {
-            $url = "{$this->resource_url}/{$id}/{$operation_name}";
+            $url = $this->getOperationUrl($id, $operation_name);
             return;
         }
 
@@ -300,27 +407,6 @@ namespace REDCap\FhirDataTool\App\Models
         }
 
         /**
-         * build the endpoint URL
-         *
-         * @param string $resource_type FHIR resource type
-         * @param array $fields REDCap fields
-         * @return array
-         */
-        public function getQueryParams($patient_id, $properties)
-        {   
-            $params = array();
-            $params['patient'] = urlencode($patient_id); // valid for all search requests
-            if (static::DATE_PARAMETER_NAME !== null)
-            {
-                // Get param names, which may differ for endpoints
-                $dateParamName = static::DATE_PARAMETER_NAME;
-                $date_range = $this->getDateRangeQueryParams($properties['minDate'], $properties['maxDate']);
-                if(!empty($date_range)) $params[$dateParamName] = $date_range;
-            }
-            return $params;
-        }
-
-        /**
          * Get the min and max date parameters.
          * check the 'fhir_convert_timestamp_from_gmt' system setting and performs
          * additions/sottactions accordingly
@@ -329,7 +415,7 @@ namespace REDCap\FhirDataTool\App\Models
          * @param string $date_max
          * @return array
          */
-        protected function getDateRangeQueryParams($date_min, $date_max)
+        protected static function getDateRangeQueryParams($date_min, $date_max)
         {
             global $fhir_convert_timestamp_from_gmt;
 
@@ -349,6 +435,30 @@ namespace REDCap\FhirDataTool\App\Models
                 $params['date_max'] = "lt{$date_max}";
             }
             return $params;
+        }
+
+        public static function getQueryStringFromRedcapParameters($patient_id, $parameters)
+        {
+            $queryBuilder = new \UrlQueryBuilder();
+            // set the patient ID
+            $queryBuilder->where('patient',$patient_id);
+            // manage dates (mostly conditions, labs and vitals)
+            if($date_key = static::DATE_PARAMETER_NAME)
+            {
+                $date_min = $parameters['minDate'] ?: null;
+                $date_max = $parameters['maxDate'] ?: null;
+                $date_range = self::getDateRangeQueryParams($date_min, $date_max);
+                $queryBuilder->where($key=$date_key, $value=$date_range, $logic=\UrlQueryBuilder::QUERY_ARRAY_FORMAT_REPEAT);
+            }
+            // manage codes (mostrly for labs and vitals)
+            if($code_key = static::CODE_PARAMETER_NAME)
+            {
+                // add loinc indentificator
+                array_walk($parameters['fields'], function(&$field) { $field = 'http://loinc.org|'.$field;});
+                $fields = $parameters['fields'] ?: array();
+                $queryBuilder->where($key=$code_key, $value=$fields, $logic=\UrlQueryBuilder::QUERY_ARRAY_FORMAT_COMMA);
+            }
+            return $queryBuilder->get();
         }
         
     }
