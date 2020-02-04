@@ -37,9 +37,9 @@ namespace REDCap\FhirDataTool\App\Models
          * @param array $fields REDCap fields
          * @return array
          */
-        public function getQueryParams($patient_id, $properties)
+        public static function convertRedcapParametersToFhir($patient_id, $properties)
         {
-            $params = parent::getQueryParams($patient_id, $properties);
+            $params = parent::convertRedcapParametersToFhir($patient_id, $properties);
             // If "Medications" endpoint for "Active medications list", then set specific URL for it
             // Set URL
             $status_list = array(
@@ -58,7 +58,7 @@ namespace REDCap\FhirDataTool\App\Models
                     $requested_status[] = $matches[1]; // get the matched status
                 }
             }
-            if(!empty($requested_status)) $params['status'] = $requested_status;
+            if(!empty($requested_status)) $params[] = array($key='status', $requested_status, \UrlQueryBuilder::QUERY_ARRAY_FORMAT_COMMA);
             return $params;
         }
     }

@@ -6,7 +6,6 @@
         <label for="mrn" class="mr-2">Medical Record Number</label>
         <input type="text" class="form-control" id="mrn" v-model="mrn" placeholder="MRN">
       </div>
-      {{resource_type}}
       <slot></slot>
       
       <div class="buttons my-2">
@@ -76,6 +75,7 @@ export default {
       /* const all_params = this.$store.state.endpoint.params // global params object. contains params for every endpoint
       const params = all_params[endpoint] || [] // get extra params for the current endpoint */
       const params = this.$route.query
+      this.$emit('onSbubmit', {params})
       const interaction = this.interaction
       try {
         this.loading = true

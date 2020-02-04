@@ -54,39 +54,5 @@ namespace REDCap\FhirDataTool\App\Models
             
         }
 
-        private function chunkFieldParameters($parameters, $chunk_size=50)
-        {
-            if(count($parameters)<=$chunk_size) return $parameters;
-    
-            // too many fields for this request; make chunks and create a separate endpoint for each one
-            $chunks = array_chunk($parameters, $chunk_size);
-            foreach ($chunks as $chunk) {
-                $chunked = $parameters; // copy the original parameters
-                $chunked_resource['fields'] = $chunked; // set the fields to the current chunk
-            }
-    
-    
-        }
-
-        /**
-         * build the endpoint URL
-         *
-         * @param string $resource_type FHIR resource type
-         * @param array $fields REDCap fields
-         * @return array
-         */
-        public function getQueryParams($patient_id, $properties)
-        {
-            $params = parent::getQueryParams($patient_id, $properties);
-            // transform redcap code fields to fhir compatible
-            $codes = $properties['fields'];
-            if(!empty($codes)) {
-                // add the coding system in front of the code. this is ignored by Epic but required in cerner
-                array_walk($codes, function(&$field) { $field = 'http://loinc.org|'.$field;});
-                $params[self::CODE_PARAMETER_NAME] = $codes;
-            }
-            return $params;
-        }
-
     }
 }

@@ -1,8 +1,9 @@
 <template>
   <div class="home-page">
-    <FhirForm class="fhir-form" resource_type="MedicationOrder" method_name="search">
+    <FhirForm class="fhir-form" resource_type="MedicationOrder" method_name="search" @onSubmit="onSubmit">
       <MedicationOrderFields />
     </FhirForm>
+
     <table class="table table-striped table-bordered" v-if="entries.length">
       <thead>
         <th>medication_reference</th>
@@ -24,7 +25,9 @@
         </tr>
       </tbody>
     </table>
+
     <ResourceContainer />
+    
   </div>
 </template>
 
@@ -58,6 +61,9 @@ export default {
      * formatDate from Utils
      */
     formatDate,
+    onSubmit(data) {
+      console.log(data)
+    }
   }
 }
 </script>

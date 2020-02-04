@@ -211,19 +211,19 @@ namespace REDCap\FhirDataTool\App\Models
          * @param array $params
          * @return string
          */
-        /* public static function buildQuery($params)
+        public static function buildQuery($params)
         {
             $query_strings = array();
+            $array_formats = \UrlQueryBuilder::$array_formats;
+            $query_builder = new \UrlQueryBuilder();
             foreach ($params as $settings) {
-                $key = $settings['key'] ?: '';
-                $value = $settings['value'] ?: '';
-                $logic = $settings['logic'] ?: null;
-                $array_format = in_array($key, $and_logic_keys) ? \UrlQueryBuilder::QUERY_ARRAY_FORMAT_REPEAT : \UrlQueryBuilder::QUERY_ARRAY_FORMAT_COMMA;
-                $query_strings[] = \UrlQueryBuilder::getQueryString($key, $value, $array_format);
+                list($key, $value, $array_format) = $settings;
+                $array_format = in_array($array_format, $array_formats) ? $array_format : \UrlQueryBuilder::QUERY_ARRAY_FORMAT_COMMA; // default to comma separated (OR in FHIR)
+                $query_builder->where($key, $value, $array_format);
             }
-            $query_string = implode('&', $query_strings); // join all params
+            $query_string = $query_builder->get(); // join all params
             return $query_string;
-        } */
+        }
 
         /**
          * return the url for the read interaction
@@ -243,11 +243,12 @@ namespace REDCap\FhirDataTool\App\Models
          * return the url for the search interaction
          * method: GET
          * 
-         * @param string $params
+         * @param string $parameters list of parameters containing $key, $value and $array_format
          * @return array
          */
-        public function search($query_string)
+        public function search($parameters)
         {
+            $query_string = \UrlQueryBuilder::build($parameters);
             $url = $this->getSearchUrl($query_string);
             $data = $this->getFhirData($url, $this->access_token);
             return json_decode($data);
@@ -344,10 +345,11 @@ namespace REDCap\FhirDataTool\App\Models
             $filtered_params = array();
             $accepted_params = array_merge($accepted_keys, self::$common_parameters);
 
-            foreach ($params as $key => $value) {
+            foreach ($params as $param) {
+                list($key, $value) = $param;
                 if(empty($value)) continue;
                 if(!in_array($key,$accepted_params)) continue;
-                $filtered_params[$key] = $value;
+                $filtered_params[] = $param;
             }
 
             return $filtered_params;
@@ -437,28 +439,49 @@ namespace REDCap\FhirDataTool\App\Models
             return $params;
         }
 
-        public static function getQueryStringFromRedcapParameters($patient_id, $parameters)
+        /**
+         * convert a set of REDCap defined parameters in a FHIR compatible format
+         *
+         * @param string $patient_id
+         * @param array $parameters (minDate, maxDate, fields)
+         * @return array
+         */
+        public static function convertRedcapParametersToFhir($patient_id, $parameters)
         {
-            $queryBuilder = new \UrlQueryBuilder();
-            // set the patient ID
-            $queryBuilder->where('patient',$patient_id);
-            // manage dates (mostly conditions, labs and vitals)
+            $fhir_params = array();
+            $fhir_params[] = array('patient', $patient_id); // add the patient
+
+            // add dates (mostly conditions, labs and vitals)
             if($date_key = static::DATE_PARAMETER_NAME)
             {
                 $date_min = $parameters['minDate'] ?: null;
                 $date_max = $parameters['maxDate'] ?: null;
                 $date_range = self::getDateRangeQueryParams($date_min, $date_max);
-                $queryBuilder->where($key=$date_key, $value=$date_range, $logic=\UrlQueryBuilder::QUERY_ARRAY_FORMAT_REPEAT);
+                $fhir_params[] = array($date_key, $date_range, \UrlQueryBuilder::QUERY_ARRAY_FORMAT_REPEAT);
             }
-            // manage codes (mostrly for labs and vitals)
+            // add codes (mostrly for labs and vitals)
             if($code_key = static::CODE_PARAMETER_NAME)
             {
                 // add loinc indentificator
                 array_walk($parameters['fields'], function(&$field) { $field = 'http://loinc.org|'.$field;});
                 $fields = $parameters['fields'] ?: array();
-                $queryBuilder->where($key=$code_key, $value=$fields, $logic=\UrlQueryBuilder::QUERY_ARRAY_FORMAT_COMMA);
+                $fhir_params[] = array($code_key, $fields, \UrlQueryBuilder::QUERY_ARRAY_FORMAT_COMMA);
             }
-            return $queryBuilder->get();
+            return $fhir_params;
+        }
+
+        /**
+         * convert a set of REDCap defined parameters in a FHIR compatible query string
+         *
+         * @param string $patient_id
+         * @param array $parameters (minDate, maxDate, fields)
+         * @return string
+         */
+        public static function getQueryStringFromRedcapParameters($patient_id, $parameters)
+        {
+            $fhir_params = static::convertRedcapParametersToFhir($patient_id, $parameters);
+            $query_string = \UrlQueryBuilder::build($fhir_params);
+            return $query_string;
         }
         
     }

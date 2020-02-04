@@ -40,7 +40,6 @@ class API {
      */
     getFhirResourceByMrn(interaction, mrn, params=[])
     {
-        console.log(interaction)
         const {method_name: interaction_name, resource_type} = interaction
         // https://redcap.test/API_DEV/?pid=104&route=FhirDataToolController:fhirTest&userid=delacqf"
         // const test = qs.parse('status=completed&status=stopped&status=on-hold')

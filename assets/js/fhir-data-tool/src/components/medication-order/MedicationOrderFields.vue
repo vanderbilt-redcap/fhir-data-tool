@@ -22,17 +22,19 @@ export default {
   }),
   created() {
     const {status=[]} = this.$route.query
-    this.checked = status
+    this.checked = status.split(',') //comma separated values
+    // this.checked = status // repeated values
   },
   watch: {
     checked(value) {
       const query = Object.assign({}, this.$route.query)
-      query.status = [...this.checked]
-      // exit if the query has not been changed
-      // if(JSON.stringify(this.$route.query)==JSON.stringify(query)) return
-      this.$router.push({query: {status: [...this.checked]}}).catch(() => {
-        console.log('query params not changed')
-      })
+      const status = this.checked.join(',') // comma separated values
+      // const status = [...this.checked] // repeated values
+
+      this.$router.push({query: {status}})
+        .catch(() => {
+          console.log('query params not changed')
+        })
     }
   },
 }
