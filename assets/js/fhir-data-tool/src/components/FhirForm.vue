@@ -74,9 +74,17 @@ export default {
       const mrn = this.$store.state.endpoint.mrn
       /* const all_params = this.$store.state.endpoint.params // global params object. contains params for every endpoint
       const params = all_params[endpoint] || [] // get extra params for the current endpoint */
-      const params = this.$route.query
+      const query_params = this.$route.query
+      
+      const params = []
+      for(let key in query_params) {
+        const value = query_params[key]
+        params.push([key, value])
+      }
+
       this.$emit('onSbubmit', {params})
       const interaction = this.interaction
+
       try {
         this.loading = true
         const resource = await this.$store.dispatch('resource/fetchResource', {interaction, mrn, params})

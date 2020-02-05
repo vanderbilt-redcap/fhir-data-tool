@@ -17,8 +17,9 @@ namespace REDCap\FhirDataTool\App\Models
             return $userInfo['ui_id'];
         }
 
-        private function getPatientIdFormMrn($mrn, $access_token)
+        private function getPatientIdFormMrn($mrn)
         {
+            $access_token = self::getAccessToken($mrn);
             $fhirEhr = new \FhirEhr();
             $fhirEhr->setUserId();
             $setUiId = $fhirEhr->setUiId();
@@ -78,14 +79,7 @@ namespace REDCap\FhirDataTool\App\Models
             // Obtain an active FHIR access token for this patient
             $ui_id = static::getUiId();
             $tokenManager = new \FhirTokenManager($ui_id, $mrn);
-            $token = $tokenManager->getToken();
-            if(!$token instanceof \FHIRToken)
-            {
-                $noTokenMessage = $lang['global_01'].$lang['colon']." ".$lang['data_entry_398'];
-                throw new \FhirException($noTokenMessage, $code=400);
-            }
-            $access_token = $token->getAccessToken(); // get any valid token
-            
+            $access_token = $tokenManager->getAccessToken();
             return $access_token;
         }
 
@@ -133,9 +127,9 @@ namespace REDCap\FhirDataTool\App\Models
          * @param string $access_token
          * @return void
          */
-        public function getPatientId($mrn, $access_token) {
+        public function getPatientId($mrn) {
             try {
-                $patient_id = $this->getPatientIdFormMrn($mrn, $access_token);
+                $patient_id = $this->getPatientIdFormMrn($mrn);
                 if($patient_id===false)
                 {
                     throw new \FhirException('no patient ID was found', $code=400);
@@ -191,15 +185,14 @@ namespace REDCap\FhirDataTool\App\Models
         public function getResourceByMrn($mrn, $resource_type, $interaction, $params=array())
         {
             try {
-                $access_token = self::getAccessToken($mrn);
-                $patient_id = $this->getPatientId($mrn, $access_token);
+                $patient_id = $this->getPatientId($mrn);
                 
                 switch (strtolower($interaction)) {
                     case FhirEndpoint::INTERACTION_READ:
                         $params = $patient_id;
                     break;
                     case FhirEndpoint::INTERACTION_SEARCH:
-                        $params['patient'] = $patient_id;
+                        $params[] = array('patient', $patient_id);
                     break;
                     default:
                     break;

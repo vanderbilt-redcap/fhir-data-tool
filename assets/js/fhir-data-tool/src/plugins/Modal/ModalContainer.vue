@@ -38,11 +38,6 @@ export default {
   data: () => ({
     modal: {}
   }),
-  watch: {
-    modal(value) {
-      console.log(value)
-    }
-  },
   methods: {
     /* setComponent() {
       const body_component = () => import('@/components/BaseComponent')
@@ -58,13 +53,11 @@ export default {
       })
     }, */
     onClose() {
-      console.log('close')
       this.modal.show = false
     },
     onHidden() {
       // reset the modal after it is hidden
       this.$emit('reset')
-      console.log('hidden')
     },
     onCancelClicked() {
       if(typeof this.modal.onCancel == 'function') this.modal.onCancel()

@@ -21,7 +21,8 @@ export default {
     checked: [],
   }),
   created() {
-    const {status=[]} = this.$route.query
+    const {status=''} = this.$route.query
+    if(!status) return
     this.checked = status.split(',') //comma separated values
     // this.checked = status // repeated values
   },

@@ -48,6 +48,7 @@ class API {
         // get parameters from the current URL
         const query_params = qs.parse(location.search, { ignoreQueryPrefix: true })
 
+        params = JSON.stringify(params)
         const request_params = {
             // route,
             interaction_name,
@@ -55,6 +56,7 @@ class API {
             mrn,
             params,
         }
+
         
         const url = '/resource_by_mrn'
 

@@ -68,7 +68,8 @@ namespace REDCap\FhirDataTool\App\Controllers
             $mrn = $_GET['mrn'];
             $interaction = $_GET['interaction_name'];
             $resource_type = $_GET['resource_type'];
-            $params = $_GET['params'];
+            $params = json_decode($_GET['params']);
+
             try {
                 $resource = $model->getResourceByMrn($mrn, $resource_type, $interaction, $params);
                 $response = array();
