@@ -7,27 +7,12 @@
         <input type="text" class="form-control" id="mrn" v-model="mrn" placeholder="MRN">
       </div>
       <slot></slot>
-      
-      <div class="buttons my-2">
-        <button class="btn btn-info" type="button" @click="onCleanClick">
-          <span class="mr-2">clean results</span>
-          <i class="fas fa-redo"></i>
-        </button>
-        <button class="btn btn-primary" type="submit" :disabled="!canSubmit || loading">
-          <span class="mr-2">Fetch</span>
-          <i v-if="loading" class="fas fa-spinner fa-spin"></i>
-          <i v-else class="fas fa-cloud-download-alt"></i>
-        </button>
-      </div>
     </form>
 
   </div>
 </template>
 
 <script>
-import {Interaction} from '@/libraries'
-
-
 export default {
   name: 'FhirForm',
   components: {  },
@@ -56,49 +41,8 @@ export default {
     canSubmit() {
       return Boolean(this.mrn.trim())
     },
-    /**
-     * create an interaction with a resource type and a method name
-     */
-    interaction() {
-      if(!this.method_name || !this.resource_type) return false
-      const interaction = new Interaction(this.resource_type, this.method_name)
-      return interaction
-    },
   },
-  methods: {
-    async onSubmit() {
-      if(!this.interaction) {
-        alert('invalid interaction')
-        return
-      }
-      const mrn = this.$store.state.endpoint.mrn
-      /* const all_params = this.$store.state.endpoint.params // global params object. contains params for every endpoint
-      const params = all_params[endpoint] || [] // get extra params for the current endpoint */
-      const query_params = this.$route.query
-      
-      const params = []
-      for(let key in query_params) {
-        const value = query_params[key]
-        params.push([key, value])
-      }
-
-      this.$emit('onSbubmit', {params})
-      const interaction = this.interaction
-
-      try {
-        this.loading = true
-        const resource = await this.$store.dispatch('resource/fetchResource', {interaction, mrn, params})
-      } catch (error) {
-        console.error(error)
-      }finally {
-        this.loading = false
-      }
-    },
-    onCleanClick()
-    {
-      this.$store.dispatch('resource/reset')
-    }
-  }
+  methods: {}
 }
 </script>
 

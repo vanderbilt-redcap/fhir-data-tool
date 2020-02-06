@@ -1,6 +1,7 @@
 import Vue from 'vue'
-import Bundle from '../../libraries/FhirResource/Bundle'
-import Patient from '../../libraries/FhirResource/Patient'
+import Bundle from '@/libraries/FhirResource/Bundle'
+import Patient from '@/libraries/FhirResource/Patient'
+
 
 const initialState = {
     resource: {}, // resource as fetched from endpoint
@@ -38,10 +39,10 @@ const module = {
             context.commit('SET_MEDICATION_ORDERS', initialState.medication_orders)
             context.commit('SET_PATIENT', initialState.patient)
         },
-        async fetchResource(context, {interaction, mrn, params}) {
+        async fetchResource(context, {resource_type, interaction, mrn, params}) {
             // reset before fecthing
             context.dispatch('reset')
-            const response = await Vue.$API.getFhirResourceByMrn(interaction, mrn, params)
+            const response = await Vue.$API.getFhirResourceByMrn(resource_type, interaction, mrn, params)
             const resource = response.data || {}
             context.commit('SET_RESOURCE', resource)
             context.dispatch('processResource', resource)

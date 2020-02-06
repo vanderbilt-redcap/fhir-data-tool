@@ -1,94 +1,85 @@
 <template>
-  <div class="home-page">
-    <FhirForm class="fhir-form" resource_type="Observation" method_name="search">
-      <ObservationFields />
-    </FhirForm>
+  <div v-if="filtered_codings.length">
 
-    <div v-if="filtered_codings.length">
+    <section>
+      <p>An "add code" request can be sent to the admin for review when a code is not available in REDCap.</p>
+      <p>Codes that are not mapped in your project can be <b>exported</b> and used as a reference in the mapping process.</p>
+    </section>
 
-      <section>
-        <p>An "add code" request can be sent to the admin for review when a code is not available in REDCap.</p>
-        <p>Codes that are not mapped in your project can be <b>exported</b> and used as a reference in the mapping process.</p>
-      </section>
-
-      <table class="table table-striped table-bordered">
-        <thead>
-          <!-- <th><button type="button" class="btn" @click="toggleGroups">Group</button></th> -->
-          <th>Description (from EHR, not from REDCap mapping)</th>
-          <th>
-            <div v-show="exportable.length>0">
-              <div class="btn-group" role="group">
-                <button
-                  type="button" 
-                  class="btn btn-sm btn-info"
-                  @click="toggleExportableSelection"
-                ><span>{{(exportable.length===codes_to_export.length) ? `deselect all` : `select all`}} <i class="fas fa-check-square"></i></span></button>
-                <button
-                  type="button"
-                  :disabled="codes_to_export.length<1"
-                  class="btn btn-sm btn-primary"
-                  @click="showPreview">
-                  <span>Export <i class="fas fa-download"></i></span>
-                </button>
-              </div>
+    <table class="table table-striped table-bordered">
+      <thead>
+        <!-- <th><button type="button" class="btn" @click="toggleGroups">Group</button></th> -->
+        <th>Description (from EHR, not from REDCap mapping)</th>
+        <th>
+          <div v-show="exportable.length>0">
+            <div class="btn-group" role="group">
+              <button
+                type="button" 
+                class="btn btn-sm btn-info"
+                @click="toggleExportableSelection"
+              ><span>{{(exportable.length===codes_to_export.length) ? `deselect all` : `select all`}} <i class="fas fa-check-square"></i></span></button>
+              <button
+                type="button"
+                :disabled="codes_to_export.length<1"
+                class="btn btn-sm btn-primary"
+                @click="showPreview">
+                <span>Export <i class="fas fa-download"></i></span>
+              </button>
             </div>
+          </div>
 
-            <button class="btn btn-sm"
-              @click="hide_blacklisted=!hide_blacklisted"
-              :title="(hide_blacklisted ? 'show' : 'hide') + ' hidden codes'">
-              <span class="mr-2">Code</span>
-              <i v-if="hide_blacklisted" class="fa fa-eye-slash"></i>
-              <i v-else class="fas fa-eye"></i>
-            </button>
-          </th>
-          <th>System</th>
-          <th>Value</th>
-          <th>Date/time of service</th>
-        </thead>
-        <!-- codings are grouped by observation -->
-        <tbody >
-          <tr v-for="(coding, coding_index) in filtered_codings" :key="coding_index">
-            <!-- <td :style="getGroupStyle(index)">{{index}}</td> -->
-            <td>{{coding.display}}</td>
-            <td>
-              <div><span>{{coding.code}}</span></div>
-              <section v-if="isBlacklisted(coding.code)">
-                <div>
-                  <small><em>(this code is not used in REDCap: {{isBlacklisted(coding.code)}})</em></small>
-                </div>
-              </section>
-              <section v-if="!isAvailableInREDCap(coding.code)">
-                <div>
-                  <small :style="{color:'red'}">(not available in REDCap)</small>
-                </div>
-                <button class="btn btn-sm btn-info" @click="sendNotification(coding.code)">
-                  request <i class="fas fa-bell"></i>
-                </button>
-              </section>
-              <section v-if="isExportable(coding.code)">
-                <div>
-                  <small><em>(not mapped in your project)</em></small>
-                </div>
-                <label :for="`code_checkbox_${coding_index}`" class="mr-2">Select</label>
-                <input type="checkbox" name="" :id="`code_checkbox_${coding_index}`" v-model="codes_to_export" :value="coding.code">
-              </section>
-            </td>
-            <td>{{coding.system}}</td>
-            <td>{{coding.value}}</td>
-            <td>{{formatDate(coding.date)}}</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-    <ResourceContainer class="my-2"/>
+          <button class="btn btn-sm"
+            @click="hide_blacklisted=!hide_blacklisted"
+            :title="(hide_blacklisted ? 'show' : 'hide') + ' hidden codes'">
+            <span class="mr-2">Code</span>
+            <i v-if="hide_blacklisted" class="fa fa-eye-slash"></i>
+            <i v-else class="fas fa-eye"></i>
+          </button>
+        </th>
+        <th>System</th>
+        <th>Value</th>
+        <th>Date/time of service</th>
+      </thead>
+      <!-- codings are grouped by observation -->
+      <tbody >
+        <tr v-for="(coding, coding_index) in filtered_codings" :key="coding_index">
+          <!-- <td :style="getGroupStyle(index)">{{index}}</td> -->
+          <td>{{coding.display}}</td>
+          <td>
+            <div><span>{{coding.code}}</span></div>
+            <section v-if="isBlacklisted(coding.code)">
+              <div>
+                <small><em>(this code is not used in REDCap: {{isBlacklisted(coding.code)}})</em></small>
+              </div>
+            </section>
+            <section v-if="!isAvailableInREDCap(coding.code)">
+              <div>
+                <small :style="{color:'red'}">(not available in REDCap)</small>
+              </div>
+              <button class="btn btn-sm btn-info" @click="sendNotification(coding.code)">
+                request <i class="fas fa-bell"></i>
+              </button>
+            </section>
+            <section v-if="isExportable(coding.code)">
+              <div>
+                <small><em>(not mapped in your project)</em></small>
+              </div>
+              <label :for="`code_checkbox_${coding_index}`" class="mr-2">Select</label>
+              <input type="checkbox" name="" :id="`code_checkbox_${coding_index}`" v-model="codes_to_export" :value="coding.code">
+            </section>
+          </td>
+          <td>{{coding.system}}</td>
+          <td>{{coding.value}}</td>
+          <td>{{formatDate(coding.date)}}</td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 </template>
 
 <script>
 import moment from 'moment'
-import FhirForm from '@/components/FhirForm'
-import ResourceContainer from '@/components/ResourceContainer'
-import ObservationFields from'@/components/observation/ObservationFields'
+
 // temp for development
 import observation_json from '@/assets/observation'
 // blacklisted codes
@@ -98,18 +89,13 @@ import {download, formatDate} from '@/libraries'
 
 
 export default {
-  name: 'ObservationPage',
+  name: 'ObservationTable',
   data: () => ({
     hide_blacklisted: true,
     show_groups: false,
     codes_to_export: [],
     internal_codes: null, // internal state for the mapped codes
   }),
-  components: {
-    FhirForm,
-    ResourceContainer,
-    ObservationFields,
-  },
   computed: {
     /**
      * get a list of the codings based on the selected codes

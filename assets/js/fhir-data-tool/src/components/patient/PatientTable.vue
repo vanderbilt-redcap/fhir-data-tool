@@ -1,28 +1,19 @@
 <template>
-  <div class="home-page">
-    <FhirForm class="fhir-form" resource_type="Patient" method_name="read"></FhirForm>
-    <!-- print patient data -->
-    <table v-if="Object.keys(data).length" class="table table-striped table-bordered">
-      <thead>
-        <th>key</th>
-        <th>value</th>
-      </thead>
-      <tbody>
-        <tr  v-for="(value, key) in data" :key="key">
-            <td>{{key}}</td>
-            <td>{{value}}</td>
-        </tr>
-      </tbody>
-    </table>
-    <ResourceContainer />
-  </div>
+  <table v-if="Object.keys(data).length" class="table table-striped table-bordered">
+    <thead>
+      <th>key</th>
+      <th>value</th>
+    </thead>
+    <tbody>
+      <tr  v-for="(value, key) in data" :key="key">
+          <td>{{key}}</td>
+          <td>{{value}}</td>
+      </tr>
+    </tbody>
+  </table>
 </template>
 
 <script>
-import FhirForm from '@/components/FhirForm'
-
-import ResourceContainer from '@/components/ResourceContainer'
-
 const table_headers = {
     'first_name': 'first name',
     'last_name': 'last name',
@@ -45,11 +36,7 @@ const table_headers = {
 }
 
 export default {
-  name: 'PatientPage',
-  components: {
-    FhirForm,
-    ResourceContainer,
-  },
+  name: 'PatientTable',
   data: () => ({
       table_headers,
   }),

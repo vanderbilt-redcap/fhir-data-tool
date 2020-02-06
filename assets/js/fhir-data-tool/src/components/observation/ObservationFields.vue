@@ -18,17 +18,24 @@ export default {
   computed: {
     current_category: {
       get() {
-        const {category} = this.$route.query
-        if(!category) {
-          // set the first category if not is set
-          const default_category = observation_categories[0]
-          this.$router.replace({query: {category: default_category}})
-          return default_category
+        const default_category = observation_categories[0]
+        const query = {...this.$route.query}
+        const {category=default_category} = {...query}
+        if(query.category != category) {
+          query.category = category
+          this.$router.replace({query}).catch((error) => {
+            console.log(error)
+        })
         }
         return category
       },
       set(value) {
-        this.$router.push({query: {category: value}})
+        const query = {...this.$route.query}
+        if(query.category == value) return
+        query.category = value
+        this.$router.push({query}).catch((error) => {
+          console.log(error)
+        })
       },
     }
   },

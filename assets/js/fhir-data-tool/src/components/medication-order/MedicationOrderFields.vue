@@ -28,11 +28,11 @@ export default {
   },
   watch: {
     checked(value) {
-      const query = Object.assign({}, this.$route.query)
-      const status = this.checked.join(',') // comma separated values
+      const query = {...this.$route.query}
+      query.status = this.checked.join(',') // comma separated values
       // const status = [...this.checked] // repeated values
 
-      this.$router.push({query: {status}})
+      this.$router.push({query})
         .catch(() => {
           console.log('query params not changed')
         })

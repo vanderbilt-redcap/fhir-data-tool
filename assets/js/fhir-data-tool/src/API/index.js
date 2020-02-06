@@ -38,9 +38,8 @@ class API {
      * @param {string} mrn 
      * @param {object} params additional params to use in the request
      */
-    getFhirResourceByMrn(interaction, mrn, params=[])
+    getFhirResourceByMrn(resource_type, interaction, mrn, params=[])
     {
-        const {method_name: interaction_name, resource_type} = interaction
         // https://redcap.test/API_DEV/?pid=104&route=FhirDataToolController:fhirTest&userid=delacqf"
         // const test = qs.parse('status=completed&status=stopped&status=on-hold')
         // const extra_params = qs.stringify(params)
@@ -51,7 +50,7 @@ class API {
         params = JSON.stringify(params)
         const request_params = {
             // route,
-            interaction_name,
+            interaction,
             resource_type,
             mrn,
             params,

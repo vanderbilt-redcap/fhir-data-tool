@@ -6,10 +6,22 @@ const routes = [
     { path: '/', component: () => import('@/layouts/MainLayout'),
         children: [
             { path: '', name: 'home', component: () => import('@/pages/Home') },
-            { path: '/patient', name: 'patient', component: () => import('@/pages/Patient') },
-            { path: '/medication-order', name: 'medication-order', component: () => import('@/pages/MedicationOrder') },
-            { path: '/observation', name: 'observation', component: () => import('@/pages/Observation') },
-            { path: '/condition', name: 'condition', component: () => import('@/pages/Condition') },
+            { path: 'fhir-resource', name: 'fhir-resource', component: () => import('@/pages/FhirResource'),
+                children: [
+                    { path: 'patient/:method', name: 'patient', components: {table: () => import('@/components/patient/PatientTable')}, meta: { resource_type: 'Patient'}},
+                    { path: 'medication-order/:method', name: 'medication-order', components: {
+                            extra_fields: () => import('@/components/medication-order/MedicationOrderFields'),
+                            table: () => import('@/components/medication-order/MedicationOrderTable'),
+                        }, meta: { resource_type: 'MedicationOrder'}, 
+                    },
+                    { path: 'observation/:method', name: 'observation', components: {
+                        extra_fields: () => import('@/components/observation/ObservationFields'),
+                        table: () => import('@/components/observation/ObservationTable'),
+                        }, meta: { resource_type: 'Observation'}},
+                    { path: 'condition/:method', name: 'condition', components: {table: () => import('@/components/condition/ConditionTable')}, meta: { resource_type: 'Condition'}},
+                ]
+            },
+            { path: 'fhir-tool', name: 'fhir-tool', component: () => import('@/pages/FhirTool')},
 
             { path: '/help', name: 'help', component: () => import('@/pages/Help') },
             { path: '/fhir_metadata', name: 'fhir_metadata', component: () => import('@/pages/FhirMetadata') },

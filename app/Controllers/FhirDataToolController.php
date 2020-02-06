@@ -66,7 +66,7 @@ namespace REDCap\FhirDataTool\App\Controllers
         {
             $model = new FhirDataTool();
             $mrn = $_GET['mrn'];
-            $interaction = $_GET['interaction_name'];
+            $interaction = $_GET['interaction'];
             $resource_type = $_GET['resource_type'];
             $params = json_decode($_GET['params']);
 

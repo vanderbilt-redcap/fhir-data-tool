@@ -45,6 +45,7 @@ export default {
         this.progress = this.progress+1
         if(this.progress >= this.total) {
           if(typeof(this.onDone)==='function') this.onDone()
+          this.$emit('onLoad')
         }
       }
     })

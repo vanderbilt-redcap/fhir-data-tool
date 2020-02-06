@@ -11,7 +11,7 @@ export const medication_status_list = [
     'stopped',
 ]
 
-export const endpoints = [
+export const resource_types = [
     'Patient',
     'Condition',
     'Observation',
@@ -20,13 +20,25 @@ export const endpoints = [
     'DocumentReference',
 ]
 
+export const interactions = [
+    'read',
+    'update',
+    'delete',
+    'create',
+    'search',
+    'history',
+    'transaction',
+    'operation',
+]
+
 export const menu_links = [
     { label:'Home', to: {name: 'home'}, exact:true },
-    { label:'Demographics', to: {name: 'patient'} },
-    { label:'Medications', to: {name: 'medication-order'} },
-    { label:'Labs and Vitals', to: {name: 'observation'} },
-    { label:'Problem list', to: {name: 'condition'} },
-    { label:'String Identifier', to: {name: 'string-identifier'} },
+    { label:'Demographics', to: {name: 'patient', params: {method: 'read'}},},
+    { label:'Medications', to: {name: 'medication-order', params: {method: 'search'}},},
+    { label:'Labs and Vitals', to: {name: 'observation', params: {method: 'search'}},},
+    { label:'Problem list', to: {name: 'condition', params: {method: 'search'}},},
+    { label:'FHIR Tool', to: {name: 'fhir-tool'} },
+    { label:'String Identifier', to: {name: 'string-identifier', params: {method: 'search'}},},
     // { label:'Help', to: {name: 'help'} },
     // { label:'FHIR Metadata', to: {name: 'fhir_metadata'} },
     // { label:'Project Info', to: {name: 'project_info'} },

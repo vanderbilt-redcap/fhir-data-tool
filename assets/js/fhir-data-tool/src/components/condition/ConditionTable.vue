@@ -1,45 +1,33 @@
 <template>
-  <div >
-    <FhirForm class="fhir-form" resource_type="Condition" method_name="search"></FhirForm>
-
-    <div v-if="rows.length>0">
-      <table class="table table-striped table-bordered">
-        <thead>
-          <th>Description (from EHR, not from REDCap mapping)</th>
-          <th>Status</th>
-          <th>System</th>
-          <th>Code</th>
-          <th>Date/time</th>
-        </thead>
-        <!-- codings are grouped by condition??? -->
-        <tbody >
-          <tr v-for="(row, index) in rows" :key="index">
-            <td>{{row.display}}</td>
-            <td>{{row.status}}</td>
-            <td>{{row.system}}</td>
-            <td>{{row.code}}</td>
-            <td>{{formatDate(row.date)}}</td>
-          </tr>
-        </tbody>
-      </table>
-
-    </div>
-    <ResourceContainer />
+  <div v-if="rows.length>0">
+    <table class="table table-striped table-bordered">
+      <thead>
+        <th>Description (from EHR, not from REDCap mapping)</th>
+        <th>Status</th>
+        <th>System</th>
+        <th>Code</th>
+        <th>Date/time</th>
+      </thead>
+      <!-- codings are grouped by condition??? -->
+      <tbody >
+        <tr v-for="(row, index) in rows" :key="index">
+          <td>{{row.display}}</td>
+          <td>{{row.status}}</td>
+          <td>{{row.system}}</td>
+          <td>{{row.code}}</td>
+          <td>{{formatDate(row.date)}}</td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 </template>
 
 <script>
-import FhirForm from '@/components/FhirForm'
-import ResourceContainer from '@/components/ResourceContainer'
 import {formatDate} from '@/libraries'
 
 export default {
-  name: 'ConditionPage',
+  name: 'ConditionTable',
   data: () => ({}),
-  components: {
-    FhirForm,
-    ResourceContainer,
-  },
   computed: {
     entries() {
       try {

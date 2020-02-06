@@ -1,6 +1,11 @@
 <template>
   <section class="app">
-    <router-view/>
+    <transition name="loader-fade" >
+      <div class="loader-container" v-if="!data_loaded">
+        <DataLoader  @onLoad="onLoad" />
+      </div>
+      <router-view v-else/>
+    </transition>
   </section>
 </template>
 
@@ -17,9 +22,18 @@ import App from '@/App.vue'
 import Modal from '@/plugins/Modal'
 Vue.use(Modal, {store,router})
 
+import DataLoader from '@/components/DataLoader'
+
 export default {
   name: 'app',
+  data: () => ({
+    data_loaded: false
+  }),
+  components: {DataLoader},
   methods: {
+    onLoad() {
+      this.data_loaded = true
+    },
     /**
      * load data needed for the app
      */
@@ -36,9 +50,9 @@ export default {
       })
     },
   },
-  mounted() {
+  /* mounted() {
     this.loadRemoteData()
-  },
+  }, */
   store,
   router,
 }
@@ -61,4 +75,24 @@ export default {
   width: 80%;
   margin: 0px auto;
 }
+.loader-container {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+/* transition */
+.loader-fade-enter,
+.loader-fade-leave-active {
+  opacity: 0;
+}
+.loader-fade-enter-active,
+.loader-fade-leave-active {
+  transition: opacity .3s ease-out;
+}
+
 </style>
