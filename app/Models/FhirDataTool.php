@@ -1,7 +1,6 @@
 <?php
 namespace REDCap\FhirDataTool\App\Models
 {
-    use REDCap\FhirDataTool\App\Models\FhirEndpoint;
     class FhirDataTool
     {
 
@@ -153,22 +152,22 @@ namespace REDCap\FhirDataTool\App\Models
             try {
                 $access_token = self::getAccessToken();
                 $base_URL = \FhirEhr::getFhirEndpointBaseUrl();
-                $endpoint = FhirEndpoint::getInstance($resource_type, $base_URL, $access_token);
+                $endpoint = \FhirEndpoint::getInstance($resource_type, $base_URL, $access_token);
                 
                 switch (strtolower($interaction)) {
-                    case FhirEndpoint::INTERACTION_READ:
+                    case \FhirEndpoint::INTERACTION_READ:
                         $data = $endpoint->read($id=$params);
                         break;
-                    case FhirEndpoint::INTERACTION_SEARCH:
+                    case \FhirEndpoint::INTERACTION_SEARCH:
                         $data = $endpoint->search($params);
                         break;
                     // this interactions are not available in REDCap
-                    case FhirEndpoint::INTERACTION_UPDATE:
-                    case FhirEndpoint::INTERACTION_DELETE:
-                    case FhirEndpoint::INTERACTION_CREATE:
-                    case FhirEndpoint::INTERACTION_HISTORY:
-                    case FhirEndpoint::INTERACTION_TRANSACTION:
-                    case FhirEndpoint::INTERACTION_OPERATION:
+                    case \FhirEndpoint::INTERACTION_UPDATE:
+                    case \FhirEndpoint::INTERACTION_DELETE:
+                    case \FhirEndpoint::INTERACTION_CREATE:
+                    case \FhirEndpoint::INTERACTION_HISTORY:
+                    case \FhirEndpoint::INTERACTION_TRANSACTION:
+                    case \FhirEndpoint::INTERACTION_OPERATION:
                         throw new \Exception("Interactions of type '{$interaction}' are not available in REDCap", 1);
                         break;
                     default:
@@ -188,10 +187,10 @@ namespace REDCap\FhirDataTool\App\Models
                 $patient_id = $this->getPatientId($mrn);
                 
                 switch (strtolower($interaction)) {
-                    case FhirEndpoint::INTERACTION_READ:
+                    case \FhirEndpoint::INTERACTION_READ:
                         $params = $patient_id;
                     break;
-                    case FhirEndpoint::INTERACTION_SEARCH:
+                    case \FhirEndpoint::INTERACTION_SEARCH:
                         $params[] = array('patient', $patient_id);
                     break;
                     default:
