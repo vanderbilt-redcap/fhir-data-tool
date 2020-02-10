@@ -1,7 +1,7 @@
 <?php
 namespace REDCap\FhirDataTool\App\Models
 {
-    class FhirDataTool
+    class FhirMappingHelper
     {
 
         public function __construct()

@@ -2,8 +2,7 @@
 namespace REDCap\FhirDataTool\App\Controllers
 {
 
-    use REDCap\FhirDataTool\App\Models\FhirDataTool;
-    use REDCap\FhirDataTool\App\Models\FhirEndpoint;
+    use REDCap\FhirDataTool\App\Models\FhirMappingHelper;
 
     /**
      * @method void index()
@@ -11,13 +10,13 @@ namespace REDCap\FhirDataTool\App\Controllers
      * @method string fetchFhirResource()
      * @method string getTokens()
      */
-    class FhirDataToolController extends BaseController
+    class FhirMappingHelperController extends BaseController
     {
 
         /**
          * instance of the model
          *
-         * @var FhirDataTool
+         * @var FhirMappingHelper
          */
         private $model;
 
@@ -44,7 +43,7 @@ namespace REDCap\FhirDataTool\App\Controllers
          */
         public function getProjectInfo()
         {
-            $model = new FhirDataTool();
+            $model = new FhirMappingHelper();
             $project_id = $_GET['pid'];
             $project_info = $model->getProjectInfo($project_id);
             $datamart_active_revision = $model->getDatamartRevision($project_id);
@@ -64,7 +63,7 @@ namespace REDCap\FhirDataTool\App\Controllers
          */
         public function fetchFhirResourceByMrn()
         {
-            $model = new FhirDataTool();
+            $model = new FhirMappingHelper();
             $mrn = $_GET['mrn'];
             $interaction = $_GET['interaction'];
             $resource_type = $_GET['resource_type'];
@@ -91,15 +90,15 @@ namespace REDCap\FhirDataTool\App\Controllers
          */
         public function fetchFhirResource()
         {
-            $model = new FhirDataTool();
+            $model = new FhirMappingHelper();
             $endpoint = $_GET['endpoint'];
             $interaction = $_GET['interaction'];
             $resource_type = $_GET['resource_type'];
             $id = $_GET['id'];
             $params = $_GET['params'];
             try {
-                $access_token = FhirDataTool::getAccessToken();
-                if(in_array($interaction, array(FhirEndpoint::INTERACTION_READ, FhirEndpoint::INTERACTION_UPDATE, FhirEndpoint::INTERACTION_DELETE)))
+                $access_token = FhirMappingHelper::getAccessToken();
+                if(in_array($interaction, array(\FhirEndpoint::INTERACTION_READ, \FhirEndpoint::INTERACTION_UPDATE, \FhirEndpoint::INTERACTION_DELETE)))
                 {
 
                 }else
@@ -126,7 +125,7 @@ namespace REDCap\FhirDataTool\App\Controllers
          */
         public function getTokens()
         {
-            $model = new FhirDataTool();
+            $model = new FhirMappingHelper();
             $user = $_GET['user'];
             if(!$user)
             {
@@ -145,7 +144,7 @@ namespace REDCap\FhirDataTool\App\Controllers
          */
         public function getFhirMetadata()
         {
-            $model = new FhirDataTool();
+            $model = new FhirMappingHelper();
             $ddp = new \DynamicDataPull(0, 'FHIR');
             $source_fields = $ddp->getExternalSourceFields();
             $fields = $model->getGroupedSourceFields($source_fields);
