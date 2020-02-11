@@ -11,14 +11,14 @@ $base_url = '/'.basename(dirname(__DIR__)).'/api';
 // httpMethod, route, handler
 $routes = [
     [['GET','POST'], $base_url."/test[/{id:\d+}]", 'REDCap\FhirDataTool\App\Controllers\BaseController/test'],
-    ['GET', $base_url.'/fhir-test', 'REDCap\FhirDataTool\App\Controllers\FhirMappingHelperController/fhirTest'],
-    ['GET', $base_url.'/resource', 'REDCap\FhirDataTool\App\Controllers\FhirMappingHelperController/fetchFhirResource'],
-    ['GET', $base_url.'/resource_by_mrn', 'REDCap\FhirDataTool\App\Controllers\FhirMappingHelperController/fetchFhirResourceByMrn'],
-    ['GET', $base_url.'/tokens', 'REDCap\FhirDataTool\App\Controllers\FhirMappingHelperController/getTokens'],
-    ['GET', $base_url.'/index', 'REDCap\FhirDataTool\App\Controllers\FhirMappingHelperController/index'],
-    ['GET', $base_url.'/fhir_metadata', 'REDCap\FhirDataTool\App\Controllers\FhirMappingHelperController/getFhirMetadata'],
-    ['GET', $base_url.'/project_info', 'REDCap\FhirDataTool\App\Controllers\FhirMappingHelperController/getProjectInfo'],
-    ['POST', $base_url.'/notify_admin', 'REDCap\FhirDataTool\App\Controllers\FhirMappingHelperController/notifyAdmin'],
+    ['GET', $base_url.'/fhir-test', '\FhirMappingHelperController/fhirTest'],
+    ['GET', $base_url.'/resource', '\FhirMappingHelperController/fetchFhirResource'],
+    ['GET', $base_url.'/resource_by_mrn', '\FhirMappingHelperController/fetchFhirResourceByMrn'],
+    ['GET', $base_url.'/tokens', '\FhirMappingHelperController/getTokens'],
+    ['GET', $base_url.'/index', '\FhirMappingHelperController/index'],
+    ['GET', $base_url.'/fhir_metadata', '\FhirMappingHelperController/getFhirMetadata'],
+    ['GET', $base_url.'/project_info', '\FhirMappingHelperController/getProjectInfo'],
+    ['POST', $base_url.'/notify_admin', '\FhirMappingHelperController/notifyAdmin'],
 ];
 
 // create a BaseController to manage common routes or errors
