@@ -15,6 +15,7 @@ $routes = [
     ['GET', $base_url.'/resource', '\FhirMappingHelperController/fetchFhirResource'],
     ['GET', $base_url.'/resource_by_mrn', '\FhirMappingHelperController/fetchFhirResourceByMrn'],
     ['GET', $base_url.'/tokens', '\FhirMappingHelperController/getTokens'],
+    ['GET', $base_url.'/user', '\FhirMappingHelperController/getUserInfo'],
     ['GET', $base_url.'/index', '\FhirMappingHelperController/index'],
     ['GET', $base_url.'/fhir_metadata', '\FhirMappingHelperController/getFhirMetadata'],
     ['GET', $base_url.'/project_info', '\FhirMappingHelperController/getProjectInfo'],

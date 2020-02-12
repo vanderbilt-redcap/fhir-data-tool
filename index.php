@@ -24,22 +24,7 @@ require_once( __DIR__.'/app/bootstrap.php');
     <!-- <fhir-data-tool msg="Hello..."></fhir-data-tool> -->
 
     <script src="https://unpkg.com/vue"></script>
-    <script src="./assets/js/fhir-data-tool/dist/fhir_data_tool.umd.min.js"></script>
 
-    <link rel="stylesheet" href="./assets/js/fhir-data-tool/dist/fhir_data_tool.css">
-
-
-    <div id="app">
-        <datatool></datatool>
-    </div>
-
-    <script>
-    new Vue({
-    components: {
-        'datatool': fhir_data_tool
-    }
-    }).$mount('#app')
-    </script>
 </body>
 </html>
 

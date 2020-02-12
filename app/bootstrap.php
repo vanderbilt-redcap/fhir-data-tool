@@ -15,8 +15,8 @@ function setupTestingEnvironmentVariables()
     $userid = $_GET['userid'] ?: 'delacqf';
     // \Authentication::autoLogin($userid);
     
-    $project_id = $_GET['pid'] ?: '';
-
+    $project_id = $_GET['pid'] ?: '1';
+    $_GET['pid'] = $project_id;
     return array(
         'pid' => $project_id,
         'userid' => $userid,
